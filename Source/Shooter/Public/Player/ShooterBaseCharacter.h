@@ -18,7 +18,7 @@ class SHOOTER_API AShooterBaseCharacter : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	AShooterBaseCharacter();
+	AShooterBaseCharacter(FObjectInitializer const &ObjInitializer);
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,10 +37,21 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	bool IsRunning() const;
+
+	UFUNCTION(BLueprintCallable, Category = "Movement")
+	float MoveDirectionRadians() const;
+
 private:
 
 	void MoveForward(float Scale);
-
 	void MoveRight(float Scale);
+	bool bIsMovingForward = false;
+
+
+	void StartRunning();
+	void StopRunning();
+	bool bIsRunning = false;
 
 };
