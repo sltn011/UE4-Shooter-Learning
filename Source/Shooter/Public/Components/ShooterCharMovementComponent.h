@@ -21,6 +21,7 @@ protected:
 
 public:
 
-	virtual float GetMaxSpeed() const override;
+	virtual float GetMaxSpeed(
+	) const override;
 	
 };
