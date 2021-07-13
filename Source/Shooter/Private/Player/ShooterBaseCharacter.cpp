@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/ShooterHealthComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "GameFramework/Controller.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterBaseCharacter, All, All)
 
@@ -39,6 +40,8 @@ void AShooterBaseCharacter::BeginPlay(
 {
 	Super::BeginPlay();
 
+	check(HealthComponent)
+
 	OnHealthChanged(HealthComponent->GetHealth());
 	HealthComponent->OnHealthChanged.AddUObject(this, &AShooterBaseCharacter::OnHealthChanged);
 	HealthComponent->OnDeath.AddUObject(this, &AShooterBaseCharacter::OnDeath);
@@ -49,7 +52,7 @@ void AShooterBaseCharacter::Tick(
 	float DeltaTime
 )
 {
-	Super::Tick(DeltaTime);
+	Super::Tick(DeltaTime); 
 }
 
 // Called to bind functionality to input
@@ -141,8 +144,11 @@ void AShooterBaseCharacter::OnDeath(
 	//if (DeathAnimMontage) - Already exists in PlayAnimMontage
 	PlayAnimMontage(DeathAnimMontage);
 	UCharacterMovementComponent *MovementComponent = GetCharacterMovement();
-	if (MovementComponent) {
-		MovementComponent->DisableMovement();
+	//if (MovementComponent) {
+	//	MovementComponent->DisableMovement();
+	//}
+	if (Controller) {
+		Controller->ChangeState(NAME_Spectating);
 	}
 	SetLifeSpan(5.0);
 }

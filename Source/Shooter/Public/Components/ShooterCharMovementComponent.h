@@ -21,6 +21,9 @@ protected:
 
 public:
 
+	UShooterCharMovementComponent(
+	);
+
 	virtual float GetMaxSpeed(
 	) const override;
 	

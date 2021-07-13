@@ -4,6 +4,8 @@
 #include "Components/ShooterHealthComponent.h"
 
 #include "GameFramework/Actor.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 // Sets default values for this component's properties
 UShooterHealthComponent::UShooterHealthComponent(
@@ -24,7 +26,7 @@ float UShooterHealthComponent::GetHealth(
 bool UShooterHealthComponent::IsDead(
 ) const
 {
-	return Health <= 0.0f;
+	return FMath::IsNearlyZero(Health);
 }
 
 // Called when the game starts
@@ -33,8 +35,7 @@ void UShooterHealthComponent::BeginPlay(
 {
 	Super::BeginPlay();
 
-	Health = MaxHealth;
-	OnHealthChanged.Broadcast(Health);
+	SetHealth(MaxHealth);
 	
 	AActor *Owner = GetOwner();
 	if (Owner) {
@@ -43,22 +44,47 @@ void UShooterHealthComponent::BeginPlay(
 }
 
 void UShooterHealthComponent::OnTakeAnyDamage(
-	AActor *DamagedActor,
-	float Damage,
-	UDamageType const *DamageType,
+	AActor *DamagedActor, 
+	float Damage, 
+	UDamageType const *DamageType, 
 	AController *InstigatedBy,
 	AActor *DamageCauser
 )
 {
-	if (Damage <= 0 || IsDead()) {
+	if (Damage <= 0 || IsDead() || !GetWorld()) {
 		return;
 	}
 
-	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
-	OnHealthChanged.Broadcast(Health);
-	
+	SetHealth(Health - Damage);
+
+	GetWorld()->GetTimerManager().ClearTimer(AutoHealTimerHandle);
+
 	if (IsDead()) {
 		OnDeath.Broadcast();
 	}
+	else if (bAutoHeal) {
+		if (GetWorld()) {
+			GetWorld()->GetTimerManager().SetTimer(AutoHealTimerHandle, this, &UShooterHealthComponent::AutoHeal, AutoHealUpdateTime, true, AutoHealStartDelay);
+		}
+	}
 }
 
+void UShooterHealthComponent::SetHealth(
+	float NewHealth
+)
+{
+	Health = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
+	OnHealthChanged.Broadcast(Health);
+}
+
+void UShooterHealthComponent::AutoHeal(
+)
+{
+	SetHealth(Health + AutoHealAddedValue);
+
+	if (FMath::IsNearlyEqual(Health, MaxHealth)) {
+		if (GetWorld()) {
+			GetWorld()->GetTimerManager().ClearTimer(AutoHealTimerHandle);
+		}
+	}
+}

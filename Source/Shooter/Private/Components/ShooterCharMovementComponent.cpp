@@ -5,6 +5,12 @@
 
 #include "Player/ShooterBaseCharacter.h"
 
+UShooterCharMovementComponent::UShooterCharMovementComponent(
+)
+{
+    bRunPhysicsWithNoController = true;
+}
+
 float UShooterCharMovementComponent::GetMaxSpeed(
 ) const
 {

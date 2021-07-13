@@ -38,9 +38,23 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
 	float MaxHealth = 100.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Healing")
+	bool bAutoHeal = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Healing", meta = (ClampMin = 0.0f, EditCondition = "bAutoHeal"))
+	float AutoHealStartDelay = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Healing", meta = (ClampMin = 0.0f, EditCondition = "bAutoHeal"))
+	float AutoHealUpdateTime = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Healing", meta = (ClampMin = 0.0f, EditCondition = "bAutoHeal"))
+	float AutoHealAddedValue = 1.0f;
+
 private:
 
 	float Health = 0.0f;
+
+	FTimerHandle AutoHealTimerHandle;
 
 	UFUNCTION()
 	void OnTakeAnyDamage(
@@ -50,4 +64,8 @@ private:
 		AController *InstigatedBy,
 		AActor *DamageCauser
 	);
+
+	void SetHealth(float NewHealth);
+
+	void AutoHeal();
 };
