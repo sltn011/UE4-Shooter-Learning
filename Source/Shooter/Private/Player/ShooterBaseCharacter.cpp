@@ -10,7 +10,7 @@
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogShooterBaseCharacter, All, All)
+DEFINE_LOG_CATEGORY_STATIC(LogShooterBaseCharacter, All, All);
 
 // Sets default values
 AShooterBaseCharacter::AShooterBaseCharacter(
@@ -40,11 +40,11 @@ void AShooterBaseCharacter::BeginPlay(
 {
 	Super::BeginPlay();
 
-	check(HealthComponent)
-
 	OnHealthChanged(HealthComponent->GetHealth());
 	HealthComponent->OnHealthChanged.AddUObject(this, &AShooterBaseCharacter::OnHealthChanged);
 	HealthComponent->OnDeath.AddUObject(this, &AShooterBaseCharacter::OnDeath);
+
+	LandedDelegate.AddDynamic(this, &AShooterBaseCharacter::OnGroundLanding);
 }
 
 // Called every frame
@@ -150,5 +150,23 @@ void AShooterBaseCharacter::OnDeath(
 	if (Controller) {
 		Controller->ChangeState(NAME_Spectating);
 	}
-	SetLifeSpan(5.0);
+	SetLifeSpan(LifeSpanAfterDeath);
+}
+
+
+void AShooterBaseCharacter::OnGroundLanding(
+	FHitResult const &HitResult
+)
+{
+	float const FallVelocity = -1 * GetVelocity().Z; // Negate to make value notnegative
+
+	float const MinDamagingVelocity = MinMaxDamagingFallVelocities.X;
+	float const MaxDamagingVelocity = MinMaxDamagingFallVelocities.Y;
+
+	if (MinDamagingVelocity <= FallVelocity) {
+
+		float const FallDamage = FMath::GetMappedRangeValueClamped(MinMaxDamagingFallVelocities, MinMaxFallDamage, FallVelocity);
+
+		TakeDamage(FallDamage, {}, nullptr, nullptr);
+	}
 }

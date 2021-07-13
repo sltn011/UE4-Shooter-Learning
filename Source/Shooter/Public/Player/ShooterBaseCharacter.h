@@ -44,6 +44,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage *DeathAnimMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	FVector2D MinMaxDamagingFallVelocities = FVector2D(900.0f, 1800.0f);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	FVector2D MinMaxFallDamage = FVector2D(10.0f, 100.0f);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	float LifeSpanAfterDeath = 5.0f;
+
 public:	
 	// Called every frame
 	virtual void Tick(
@@ -91,5 +100,8 @@ private:
 	
 	void OnDeath(
 	);
+
+	UFUNCTION()
+	void OnGroundLanding(FHitResult const &HitResult);
 
 };
