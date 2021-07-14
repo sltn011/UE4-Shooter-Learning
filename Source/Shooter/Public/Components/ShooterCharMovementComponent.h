@@ -6,9 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ShooterCharMovementComponent.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class SHOOTER_API UShooterCharMovementComponent : public UCharacterMovementComponent
 {

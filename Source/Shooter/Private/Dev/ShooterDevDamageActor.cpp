@@ -7,18 +7,15 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
 AShooterDevDamageActor::AShooterDevDamageActor(
 )
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
 	SetRootComponent(SceneComponent);
 }
 
-// Called when the game starts or when spawned
 void AShooterDevDamageActor::BeginPlay(
 )
 {
@@ -26,7 +23,6 @@ void AShooterDevDamageActor::BeginPlay(
 	
 }
 
-// Called every frame
 void AShooterDevDamageActor::Tick(
 	float DeltaTime
 )

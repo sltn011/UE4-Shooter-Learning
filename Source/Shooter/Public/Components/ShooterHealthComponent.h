@@ -15,7 +15,7 @@ class SHOOTER_API UShooterHealthComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
+
 	UShooterHealthComponent();
 
 	UFUNCTION(BlueprintCallable)
@@ -31,7 +31,7 @@ public:
 	FOnHealthChanged OnHealthChanged;
 
 protected:
-	// Called when the game starts
+
 	virtual void BeginPlay(
 	) override;
 

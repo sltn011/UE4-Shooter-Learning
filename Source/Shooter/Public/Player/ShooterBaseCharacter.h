@@ -12,6 +12,9 @@ class UCameraComponent;
 class UShooterHealthComponent;
 class UTextRenderComponent;
 
+class AShooterBaseWeapon;
+class UShooterWeaponComponent;
+
 
 UCLASS()
 class SHOOTER_API AShooterBaseCharacter : public ACharacter
@@ -19,47 +22,50 @@ class SHOOTER_API AShooterBaseCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
+
 	AShooterBaseCharacter(
 		FObjectInitializer const &ObjInitializer
 	);
 
 protected:
-	// Called when the game starts or when spawned
+
 	virtual void BeginPlay(
 	) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	USpringArmComponent *SpringArmComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	UCameraComponent *CameraComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health")
 	UShooterHealthComponent *HealthComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health")
 	UTextRenderComponent *HealthTextComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UShooterWeaponComponent *WeaponComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage *DeathAnimMontage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "Movement(Fall)")
 	FVector2D MinMaxDamagingFallVelocities = FVector2D(900.0f, 1800.0f);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "Movement(Fall)")
 	FVector2D MinMaxFallDamage = FVector2D(10.0f, 100.0f);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "Lifespan")
 	float LifeSpanAfterDeath = 5.0f;
 
 public:	
-	// Called every frame
+
 	virtual void Tick(
 		float DeltaTime
 	) override;
 
-	// Called to bind functionality to input
+
 	virtual void SetupPlayerInputComponent(
 		class UInputComponent *PlayerInputComponent
 	) override;
@@ -74,6 +80,9 @@ public:
 
 private:
 
+	bool bIsMovingForward = false;
+	bool bIsRunning = false;
+
 	void MoveForward(
 		float Scale
 	);
@@ -82,16 +91,12 @@ private:
 		float Scale
 	);
 
-	bool bIsMovingForward = false;
-
 
 	void StartRunning(
 	);
 
 	void StopRunning(
 	);
-
-	bool bIsRunning = false;
 
 
 	void OnHealthChanged(
@@ -102,6 +107,7 @@ private:
 	);
 
 	UFUNCTION()
-	void OnGroundLanding(FHitResult const &HitResult);
-
+	void OnGroundLanding(
+		FHitResult const &HitResult
+	);
 };

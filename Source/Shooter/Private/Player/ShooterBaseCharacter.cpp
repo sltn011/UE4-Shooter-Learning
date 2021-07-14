@@ -3,27 +3,27 @@
 
 #include "Player/ShooterBaseCharacter.h"
 
-#include "Components/ShooterCharMovementComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/ShooterCharMovementComponent.h"
 #include "Components/ShooterHealthComponent.h"
+#include "Components/ShooterWeaponComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
+#include "GameFramework/SpringArmComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterBaseCharacter, All, All);
 
-// Sets default values
 AShooterBaseCharacter::AShooterBaseCharacter(
 	FObjectInitializer const &ObjInitializer
 )
 	: Super{ObjInitializer.SetDefaultSubobjectClass<UShooterCharMovementComponent>(ACharacter::CharacterMovementComponentName)}
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->SetupAttachment(GetRootComponent());
 	SpringArmComponent->bUsePawnControlRotation = true;
+	SpringArmComponent->SocketOffset = FVector{ 0.0f, 100.0f, 0.0f };
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
@@ -32,9 +32,15 @@ AShooterBaseCharacter::AShooterBaseCharacter(
 
 	HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("HealthTextComponent"));
 	HealthTextComponent->SetupAttachment(GetRootComponent());
+	HealthTextComponent->Text = FText::FromString(FString{ TEXT("0") });
+	HealthTextComponent->TextRenderColor = FColor::Red;
+	HealthTextComponent->AddLocalOffset({ 0.0f, 0.0f, 100.0f });
+	HealthTextComponent->HorizontalAlignment = EHorizTextAligment::EHTA_Center;
+	HealthTextComponent->bOwnerNoSee = true;
+
+	WeaponComponent = CreateDefaultSubobject<UShooterWeaponComponent>(TEXT("WeaponComponent"));
 }
 
-// Called when the game starts or when spawned
 void AShooterBaseCharacter::BeginPlay(
 )
 {
@@ -47,7 +53,6 @@ void AShooterBaseCharacter::BeginPlay(
 	LandedDelegate.AddDynamic(this, &AShooterBaseCharacter::OnGroundLanding);
 }
 
-// Called every frame
 void AShooterBaseCharacter::Tick(
 	float DeltaTime
 )
@@ -55,7 +60,6 @@ void AShooterBaseCharacter::Tick(
 	Super::Tick(DeltaTime); 
 }
 
-// Called to bind functionality to input
 void AShooterBaseCharacter::SetupPlayerInputComponent(
 	UInputComponent* PlayerInputComponent
 )
@@ -76,6 +80,10 @@ void AShooterBaseCharacter::SetupPlayerInputComponent(
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AShooterBaseCharacter::StartRunning);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AShooterBaseCharacter::StopRunning);
+
+	if (WeaponComponent) {
+		PlayerInputComponent->BindAction("Shoot", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::Shoot);
+	}
 }
 
 bool AShooterBaseCharacter::IsRunning(
