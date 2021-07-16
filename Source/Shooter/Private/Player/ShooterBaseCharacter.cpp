@@ -4,6 +4,7 @@
 #include "Player/ShooterBaseCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/ShooterCharMovementComponent.h"
 #include "Components/ShooterHealthComponent.h"
 #include "Components/ShooterWeaponComponent.h"
@@ -23,7 +24,8 @@ AShooterBaseCharacter::AShooterBaseCharacter(
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->SetupAttachment(GetRootComponent());
 	SpringArmComponent->bUsePawnControlRotation = true;
-	SpringArmComponent->SocketOffset = FVector{ 0.0f, 100.0f, 0.0f };
+	SpringArmComponent->AddRelativeLocation(FVector{ 0.0f, 0.0f, 65.0f });
+	SpringArmComponent->SocketOffset = FVector{ 0.0f, 50.0f, 0.0f };
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
@@ -53,6 +55,14 @@ void AShooterBaseCharacter::BeginPlay(
 	LandedDelegate.AddDynamic(this, &AShooterBaseCharacter::OnGroundLanding);
 }
 
+void AShooterBaseCharacter::EndPlay(
+	EEndPlayReason::Type const EndPlayReason
+)
+{
+	Super::EndPlay(EndPlayReason);
+	OnOwnerDespawn.ExecuteIfBound();
+}
+
 void AShooterBaseCharacter::Tick(
 	float DeltaTime
 )
@@ -66,7 +76,7 @@ void AShooterBaseCharacter::SetupPlayerInputComponent(
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (!PlayerInputComponent) {
+	if (!PlayerInputComponent || !WeaponComponent || !GetCapsuleComponent()) {
 		return;
 	}
 
@@ -81,9 +91,8 @@ void AShooterBaseCharacter::SetupPlayerInputComponent(
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AShooterBaseCharacter::StartRunning);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AShooterBaseCharacter::StopRunning);
 
-	if (WeaponComponent) {
-		PlayerInputComponent->BindAction("Shoot", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::Shoot);
-	}
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::StartShooting);
+	PlayerInputComponent->BindAction("Shoot", IE_Released, WeaponComponent, &UShooterWeaponComponent::StopShooting);
 }
 
 bool AShooterBaseCharacter::IsRunning(
@@ -151,13 +160,16 @@ void AShooterBaseCharacter::OnDeath(
 {
 	//if (DeathAnimMontage) - Already exists in PlayAnimMontage
 	PlayAnimMontage(DeathAnimMontage);
-	UCharacterMovementComponent *MovementComponent = GetCharacterMovement();
-	//if (MovementComponent) {
-	//	MovementComponent->DisableMovement();
-	//}
+	
 	if (Controller) {
 		Controller->ChangeState(NAME_Spectating);
 	}
+	UCapsuleComponent *Capsule = GetCapsuleComponent();
+	if (Capsule) {
+		Capsule->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		Capsule->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	}
+	OnOwnerDeath.Execute();
 	SetLifeSpan(LifeSpanAfterDeath);
 }
 

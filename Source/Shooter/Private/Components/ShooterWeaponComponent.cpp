@@ -3,8 +3,8 @@
 
 #include "Components/ShooterWeaponComponent.h"
 
-#include "Weapon/ShooterBaseWeapon.h"
 #include "Player/ShooterBaseCharacter.h"
+#include "Weapon/ShooterBaseWeapon.h"
 
 UShooterWeaponComponent::UShooterWeaponComponent(
 )
@@ -14,13 +14,22 @@ UShooterWeaponComponent::UShooterWeaponComponent(
 }
 
 
-void UShooterWeaponComponent::Shoot(
+void UShooterWeaponComponent::StartShooting(
 )
 {
 	if (!CurrentWeapon) {
 		return;
 	}
-	CurrentWeapon->Shoot();
+	CurrentWeapon->StartShooting();
+}
+
+void UShooterWeaponComponent::StopShooting(
+)
+{
+	if (!CurrentWeapon) {
+		return;
+	}
+	CurrentWeapon->StopShooting();
 }
 
 void UShooterWeaponComponent::BeginPlay(
@@ -29,6 +38,13 @@ void UShooterWeaponComponent::BeginPlay(
 	Super::BeginPlay();
 	
 	SpawnWeapon();
+	AShooterBaseCharacter *OwnerCharacter = Cast<AShooterBaseCharacter>(GetOwner());
+	if (!OwnerCharacter) {
+		return;
+	}
+
+	OwnerCharacter->OnOwnerDeath.BindUObject(this, &UShooterWeaponComponent::OnOwnerDeath);
+	OwnerCharacter->OnOwnerDespawn.BindUObject(this, &UShooterWeaponComponent::OnOwnerDespawn);
 }
 
 void UShooterWeaponComponent::SpawnWeapon(
@@ -56,4 +72,20 @@ void UShooterWeaponComponent::SpawnWeapon(
 
 	FAttachmentTransformRules AttachmentRules{ EAttachmentRule::SnapToTarget, false };
 	CurrentWeapon->AttachToComponent(SkeletalMesh, AttachmentRules, WeaponAttachSocketName);
+	CurrentWeapon->SetOwner(Character);
+}
+
+void UShooterWeaponComponent::OnOwnerDeath(
+)
+{
+	StopShooting();
+}
+
+void UShooterWeaponComponent::OnOwnerDespawn(
+)
+{
+	if (!CurrentWeapon) {
+		return;
+	}
+	CurrentWeapon->Destroy();
 }

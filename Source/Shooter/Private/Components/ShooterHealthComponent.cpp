@@ -3,8 +3,8 @@
 
 #include "Components/ShooterHealthComponent.h"
 
-#include "GameFramework/Actor.h"
 #include "Engine/World.h"
+#include "GameFramework/Actor.h"
 #include "TimerManager.h"
 
 UShooterHealthComponent::UShooterHealthComponent(

@@ -16,6 +16,10 @@ class AShooterBaseWeapon;
 class UShooterWeaponComponent;
 
 
+DECLARE_DELEGATE(FOnOwnerDeath);
+DECLARE_DELEGATE(FOnOwnerDespawn);
+
+
 UCLASS()
 class SHOOTER_API AShooterBaseCharacter : public ACharacter
 {
@@ -30,6 +34,10 @@ public:
 protected:
 
 	virtual void BeginPlay(
+	) override;
+
+	virtual void EndPlay(
+		EEndPlayReason::Type const EndPlayReason
 	) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
@@ -65,7 +73,6 @@ public:
 		float DeltaTime
 	) override;
 
-
 	virtual void SetupPlayerInputComponent(
 		class UInputComponent *PlayerInputComponent
 	) override;
@@ -78,10 +85,10 @@ public:
 	float MoveDirectionRadians(
 	) const;
 
-private:
+	FOnOwnerDeath   OnOwnerDeath;   // Delegate to tell Actors owned by this character that he died
+	FOnOwnerDespawn OnOwnerDespawn; // Delegate to tell Actors owned by this character that he despawned
 
-	bool bIsMovingForward = false;
-	bool bIsRunning = false;
+private:
 
 	void MoveForward(
 		float Scale
@@ -110,4 +117,7 @@ private:
 	void OnGroundLanding(
 		FHitResult const &HitResult
 	);
+
+	bool bIsMovingForward = false;
+	bool bIsRunning = false;
 };

@@ -18,7 +18,10 @@ public:
 	UShooterWeaponComponent(
 	);
 
-	void Shoot(
+	void StartShooting(
+	);
+
+	void StopShooting(
 	);
 
 protected:
@@ -34,10 +37,18 @@ protected:
 
 private:
 
-	UPROPERTY()
-	AShooterBaseWeapon *CurrentWeapon = nullptr;
-
 	void SpawnWeapon(
 	);
+
+	UFUNCTION()
+	void OnOwnerDeath(
+	);
+
+	UFUNCTION()
+	void OnOwnerDespawn(
+	);
+
+	UPROPERTY()
+	AShooterBaseWeapon *CurrentWeapon = nullptr;
 
 };
