@@ -21,6 +21,16 @@ AShooterBaseWeapon::AShooterBaseWeapon(
 	SetRootComponent(WeaponMesh);
 }
 
+void AShooterBaseWeapon::StartShooting(
+)
+{
+}
+
+void AShooterBaseWeapon::StopShooting(
+)
+{
+}
+
 void AShooterBaseWeapon::BeginPlay(
 )
 {
@@ -35,31 +45,29 @@ void AShooterBaseWeapon::MakeShot(
 		return;
 	}
 
-	FVector MuzzleTraceStart, MuzzleTraceEnd;
-	if (!GetTraceData(MuzzleTraceStart, MuzzleTraceEnd)) { // Can't do tracing if an error occured
+	FVector TraceStart, TraceEnd;
+	if (!GetTraceData(TraceStart, TraceEnd)) {
 		return;
 	}
 
-	FHitResult MuzzleHitResult;
-	if (!TraceShot(MuzzleHitResult, MuzzleTraceStart, MuzzleTraceEnd)) { // Can't  do tracing if an error occured
+	FHitResult HitResult;
+	if (!TraceShot(HitResult, TraceStart, TraceEnd)) {
 		return;
 	}
 
 
-	if (MuzzleHitResult.bBlockingHit) {
-		FVector const HitDirection = (MuzzleHitResult.ImpactPoint - MuzzleTraceStart).GetSafeNormal();
+	if (HitResult.bBlockingHit) {
+		FVector const HitDirection = (HitResult.ImpactPoint - TraceStart).GetSafeNormal();
 		FVector const MuzzleForward = GetMuzzleWorldDirection();
 		if (FVector::DotProduct(HitDirection, MuzzleForward) < 0.0f) { // Can't shoot backwards
 			return;
 		}
 
-		DealDamage(MuzzleHitResult);
-
-		DrawDebugLine(World, MuzzleTraceStart, MuzzleHitResult.ImpactPoint, FColor::Red, false, 3.0f);
-		DrawDebugSphere(World, MuzzleHitResult.ImpactPoint, 10.0f, 24, FColor::Red, false, 3.0f);
+		DrawDebugLine(World, TraceStart, HitResult.ImpactPoint, FColor::Red, false, 3.0f);
+		DrawDebugSphere(World, HitResult.ImpactPoint, 10.0f, 24, FColor::Red, false, 3.0f);
 	}
 	else {
-		DrawDebugLine(World, MuzzleTraceStart, MuzzleTraceEnd, FColor::Red, false, 3.0f);
+		DrawDebugLine(World, TraceStart, TraceEnd, FColor::Red, false, 3.0f);
 	}
 }
 
@@ -130,9 +138,7 @@ bool AShooterBaseWeapon::GetTraceData(
 
 	// Trace data for line from muzzle
 	FVector const MuzzleLocation = GetMuzzleWorldLocation();
-	FVector const MuzzleDirection = (CameraShotEndPoint - MuzzleLocation).GetSafeNormal();
-	float const SpreadRadians = FMath::DegreesToRadians(BulletSpreadDegrees * 0.5f);
-	FVector const MuzzleShotDirection = FMath::VRandCone(MuzzleDirection, SpreadRadians);
+	FVector const MuzzleShotDirection = (CameraShotEndPoint - MuzzleLocation).GetSafeNormal();
 	FVector const MuzzleShotEnd = MuzzleLocation + MuzzleShotDirection * BulletMaxDistance;
 
 	TraceStart = MuzzleLocation;
@@ -157,35 +163,4 @@ bool AShooterBaseWeapon::TraceShot(
 	World->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, CollisionParams);
 
 	return true;
-}
-
-bool AShooterBaseWeapon::DealDamage(
-	FHitResult const &HitResult
-)
-{
-	AActor *HitActor = HitResult.GetActor();
-	if (!HitResult.bBlockingHit || !HitActor) {
-		return false;
-	}
-
-	HitActor->TakeDamage(DamagePerShot, {}, GetPlayerController(), this);
-	return true;
-}
-
-void AShooterBaseWeapon::StartShooting(
-)
-{
-	if (!GetWorld()) {
-		return;
-	}
-	GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &AShooterBaseWeapon::MakeShot, 60.0f / ShotsPerMinute, true, 0.0f);
-}
-
-void AShooterBaseWeapon::StopShooting(
-)
-{
-	if (!GetWorld()) {
-		return;
-	}
-	GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
 }

@@ -30,7 +30,7 @@ protected:
 	virtual void BeginPlay(
 	) override;
 
-	void MakeShot(
+	virtual void MakeShot(
 	);
 
 	APlayerController *GetPlayerController(
@@ -47,7 +47,7 @@ protected:
 	FVector GetMuzzleWorldDirection(
 	) const;
 
-	bool GetTraceData(
+	virtual bool GetTraceData(
 		FVector &TraceStart, 
 		FVector &TraceEnd
 	) const;
@@ -58,12 +58,6 @@ protected:
 		FVector const &TraceEnd
 	) const;
 
-	bool DealDamage(
-		FHitResult const &HitResult
-	);
-
-	
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USkeletalMeshComponent *WeaponMesh;
 
@@ -71,18 +65,6 @@ protected:
 	FName MuzzleSocketName = TEXT("MuzzleSocket");
 
 	UPROPERTY(EditDefaultsOnly, Category = "Shooting")
-	float BulletMaxDistance = 1500.0f;
+	float BulletMaxDistance = 10000.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClipMin = 0.0f))
-	float DamagePerShot = 10.0f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClipMin = 0.0f))
-	float ShotsPerMinute = 600.0f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClipMin = 0.0f))
-	float BulletSpreadDegrees = 2.5f;
-
-private:
-
-	FTimerHandle ShootingTimerHandle;
 };
