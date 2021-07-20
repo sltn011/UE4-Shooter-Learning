@@ -11,6 +11,7 @@ class AShooterBaseProjectile;
 UCLASS()
 class SHOOTER_API AShooterRocketLauncherWeapon : public AShooterBaseWeapon
 {
+
 	GENERATED_BODY()
 	
 public:
@@ -19,6 +20,9 @@ public:
 	) override;
 
 protected:
+
+	virtual void BeginPlay(
+	) override;
 
 	virtual void MakeShot(
 	) override;

@@ -24,21 +24,39 @@ void AShooterRifleWeapon::StopShooting(
 	GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
 }
 
+void AShooterRifleWeapon::BeginPlay(
+)
+{
+	Super::BeginPlay();
+
+	check(DamagePerShot > 0.0f);
+	check(ShotsPerMinute > 0.0f);
+	check(BulletSpreadDegrees >= 0.0f);
+}
+
 void AShooterRifleWeapon::MakeShot(
 )
 {
+	if (IsAmmoEmpty()) {
+		StopShooting();
+		return;
+	}
+
 	UWorld *World = GetWorld();
 	if (!World || !WeaponMesh) {
+		StopShooting();
 		return;
 	}
 
 	FVector TraceStart, TraceEnd;
 	if (!GetTraceData(TraceStart, TraceEnd)) {
+		StopShooting();
 		return;
 	}
 
 	FHitResult HitResult;
 	if (!TraceShot(HitResult, TraceStart, TraceEnd)) {
+		StopShooting();
 		return;
 	}
 
@@ -58,6 +76,8 @@ void AShooterRifleWeapon::MakeShot(
 	else {
 		DrawDebugLine(World, TraceStart, TraceEnd, FColor::Red, false, 3.0f);
 	}
+
+	DecreaseAmmo();
 }
 
 bool AShooterRifleWeapon::GetTraceData(

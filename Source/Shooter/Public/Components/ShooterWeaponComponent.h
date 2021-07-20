@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ShooterCoreTypes.h"
 #include "ShooterWeaponComponent.generated.h"
 
-class AShooterBaseWeapon;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOTER_API UShooterWeaponComponent : public UActorComponent
 {
+
 	GENERATED_BODY()
 
 public:	
@@ -24,31 +25,101 @@ public:
 	void StopShooting(
 	);
 
+	void EquipNextWeapon(
+	);
+
+	void ReloadWeapon(
+	);
+
 protected:
 
 	virtual void BeginPlay(
 	) override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<AShooterBaseWeapon> WeaponClass;
+	virtual void EndPlay(
+		EEndPlayReason::Type const EndPlayReason
+	) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	FName WeaponAttachSocketName = TEXT("WeaponSocket");
+	TArray<FWeaponData> WeaponData;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	FName WeaponEquippedSocketName = TEXT("WeaponSocket");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	FName WeaponArmorySocketName = TEXT("ArmorySocket");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	UAnimMontage *EquipAnimMontage;
 
 private:
 
-	void SpawnWeapon(
+	void SpawnWeapons(
+	);
+
+	void AttachWeaponToSocket(
+		AShooterBaseWeapon *Weapon,
+		USceneComponent *SceneComponent,
+		FName const &SocketName
+	);
+
+	void EquipWeapon(
+		int32 WeaponIndex
+	);
+
+	void PlayAnimMontage(
+		UAnimMontage *Montage
+	);
+
+	USkeletalMeshComponent *GetOwnerSkeletalMesh(
+	);
+
+	void InitAnimations(
+	);
+
+	void InitEquipAnimation(
+	);
+
+	void InitReloadAnimation(
+		UAnimMontage *ReloadMontage
+	);
+
+	bool CanShoot(
+	) const;
+
+	bool CanEquip(
+	) const;
+
+	bool CanReload(
+	) const;
+
+	void ChangeClip(
 	);
 
 	UFUNCTION()
-	void OnOwnerDeath(
+	void OnEquipFinished(
+		USkeletalMeshComponent *MeshComp
 	);
 
 	UFUNCTION()
-	void OnOwnerDespawn(
+	void OnReloadFinished(
+		USkeletalMeshComponent *MeshComp
 	);
+
+	UFUNCTION()
+	void OnEmptyClip(
+	);
+
+	UPROPERTY()
+	TArray<AShooterBaseWeapon *> Weapons;
 
 	UPROPERTY()
 	AShooterBaseWeapon *CurrentWeapon = nullptr;
 
+	UPROPERTY()
+	UAnimMontage *CurrentReloadAnimMontage = nullptr;
+
+	int32 CurrentWeaponIndex = 0;
+
+	bool bActionAnimInProgress = false;
 };

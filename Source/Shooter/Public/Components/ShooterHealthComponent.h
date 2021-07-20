@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ShooterCoreTypes.h"
 #include "ShooterHealthComponent.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnDeath);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOTER_API UShooterHealthComponent : public UActorComponent
@@ -52,10 +51,6 @@ protected:
 
 private:
 
-	float Health = 0.0f;
-
-	FTimerHandle AutoHealTimerHandle;
-
 	UFUNCTION()
 	void OnTakeAnyDamage(
 		AActor *DamagedActor,
@@ -68,4 +63,8 @@ private:
 	void SetHealth(float NewHealth);
 
 	void AutoHeal();
+
+	float Health = 0.0f;
+
+	FTimerHandle AutoHealTimerHandle;
 };

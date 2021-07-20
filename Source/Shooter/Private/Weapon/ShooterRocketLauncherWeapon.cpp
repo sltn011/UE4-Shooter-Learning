@@ -11,9 +11,21 @@ void AShooterRocketLauncherWeapon::StartShooting(
     MakeShot();
 }
 
+void AShooterRocketLauncherWeapon::BeginPlay(
+)
+{
+	Super::BeginPlay();
+
+	checkf(RocketProjectileClass, TEXT("RocketProjectileClass is not set!"))
+}
+
 void AShooterRocketLauncherWeapon::MakeShot(
 )
 {
+	if (IsAmmoEmpty()) {
+		return;
+	}
+
 	UWorld *World = GetWorld();
 	if (!World || !WeaponMesh) {
 		return;
@@ -41,4 +53,6 @@ void AShooterRocketLauncherWeapon::MakeShot(
 	Projectile->SetOwner(GetOwner()); // Launcher owner owns its projectiles
 	Projectile->ShotDirection = ShotDirection;
 	Projectile->FinishSpawning(SpawnTransform);
+
+	DecreaseAmmo();
 }

@@ -11,3 +11,11 @@ AShooterMeshProjectile::AShooterMeshProjectile(
     ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
     ProjectileMesh->SetupAttachment(GetRootComponent());
 }
+
+void AShooterMeshProjectile::BeginPlay(
+)
+{
+    Super::BeginPlay();
+
+    check(ProjectileMesh);
+}

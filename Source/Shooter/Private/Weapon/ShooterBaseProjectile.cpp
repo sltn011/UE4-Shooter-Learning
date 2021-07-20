@@ -29,12 +29,17 @@ void AShooterBaseProjectile::BeginPlay(
 {
 	Super::BeginPlay();
 
+	check(SphereCollisionComponent);
+	check(MovementComponent);
+
+	check(TimeToLive > 0.0f);
+	check(DamageAmount > 0.0f);
+	check(AreaRadius > 0.0f);
+
 	SphereCollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);
 	SphereCollisionComponent->OnComponentHit.AddDynamic(this, &AShooterBaseProjectile::OnHit);
 
-	if (MovementComponent) {
-		MovementComponent->Velocity = ShotDirection * MovementComponent->InitialSpeed;
-	}
+	MovementComponent->Velocity = ShotDirection * MovementComponent->InitialSpeed;
 
 	SetLifeSpan(TimeToLive);
 }

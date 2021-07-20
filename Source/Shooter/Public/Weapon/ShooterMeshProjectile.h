@@ -20,6 +20,9 @@ public:
 	
 protected:
 
+	virtual void BeginPlay(
+	) override;
+
 	UPROPERTY(VisibleAnywhere, Category = "Projectile")
 	UStaticMeshComponent *ProjectileMesh;
 

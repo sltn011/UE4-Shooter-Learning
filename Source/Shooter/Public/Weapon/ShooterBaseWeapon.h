@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ShooterCoreTypes.h"
 #include "ShooterBaseWeapon.generated.h"
 
 class APlayerController;
@@ -24,6 +25,14 @@ public:
 
 	virtual void StopShooting(
 	);
+
+	bool CanReload(
+	) const;
+
+	void ChangeClip(
+	);
+
+	FOnEmptyClip OnEmptyClip;
 
 protected:
 
@@ -58,13 +67,33 @@ protected:
 		FVector const &TraceEnd
 	) const;
 
+	void DecreaseAmmo(
+	);
+
+	bool IsAmmoEmpty(
+	) const;
+
+	bool IsClipEmpty(
+	) const;
+
+	void LogAmmo(
+	) const;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USkeletalMeshComponent *WeaponMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
+	FAmmoData DefaultAmmo;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Socket")
 	FName MuzzleSocketName = TEXT("MuzzleSocket");
 
-	UPROPERTY(EditDefaultsOnly, Category = "Shooting")
+	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClampMin = 0.0f))
 	float BulletMaxDistance = 10000.0f;
+
+
+private:
+
+	FAmmoData CurrentAmmo;
 
 };

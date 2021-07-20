@@ -16,13 +16,10 @@ class AShooterBaseWeapon;
 class UShooterWeaponComponent;
 
 
-DECLARE_DELEGATE(FOnOwnerDeath);
-DECLARE_DELEGATE(FOnOwnerDespawn);
-
-
 UCLASS()
 class SHOOTER_API AShooterBaseCharacter : public ACharacter
 {
+
 	GENERATED_BODY()
 
 public:
@@ -64,7 +61,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement(Fall)")
 	FVector2D MinMaxFallDamage = FVector2D(10.0f, 100.0f);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Lifespan")
+	UPROPERTY(EditDefaultsOnly, Category = "Lifespan", meta = (ClampMin = 0.0f))
 	float LifeSpanAfterDeath = 5.0f;
 
 public:	
@@ -84,9 +81,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	float MoveDirectionRadians(
 	) const;
-
-	FOnOwnerDeath   OnOwnerDeath;   // Delegate to tell Actors owned by this character that he died
-	FOnOwnerDespawn OnOwnerDespawn; // Delegate to tell Actors owned by this character that he despawned
 
 private:
 
@@ -117,6 +111,7 @@ private:
 	void OnGroundLanding(
 		FHitResult const &HitResult
 	);
+
 
 	bool bIsMovingForward = false;
 	bool bIsRunning = false;

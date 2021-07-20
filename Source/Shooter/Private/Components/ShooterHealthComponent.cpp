@@ -7,6 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "TimerManager.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogShooterHealthComponent, All, All);
+
 UShooterHealthComponent::UShooterHealthComponent(
 )
 {
@@ -31,11 +33,20 @@ void UShooterHealthComponent::BeginPlay(
 {
 	Super::BeginPlay();
 
+	check(MaxHealth > 0.0f);
+	check(AutoHealStartDelay >= 0.0f);
+	check(AutoHealUpdateTime >= 0.0f);
+	check(AutoHealAddedValue >= 0.0f);
+
 	SetHealth(MaxHealth);
 	
 	AActor *Owner = GetOwner();
 	if (Owner) {
 		Owner->OnTakeAnyDamage.AddDynamic(this, &UShooterHealthComponent::OnTakeAnyDamage);
+	}
+	else {
+		UE_LOG(LogShooterHealthComponent, Error, TEXT("Error recieving component's Owner!"));
+		checkNoEntry();
 	}
 }
 

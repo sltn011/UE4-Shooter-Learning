@@ -48,6 +48,14 @@ void AShooterBaseCharacter::BeginPlay(
 {
 	Super::BeginPlay();
 
+	check(SpringArmComponent);
+	check(CameraComponent);
+	check(HealthComponent);
+	check(HealthTextComponent);
+	check(WeaponComponent);
+
+	check(LifeSpanAfterDeath >= 0.0f);
+
 	OnHealthChanged(HealthComponent->GetHealth());
 	HealthComponent->OnHealthChanged.AddUObject(this, &AShooterBaseCharacter::OnHealthChanged);
 	HealthComponent->OnDeath.AddUObject(this, &AShooterBaseCharacter::OnDeath);
@@ -60,7 +68,6 @@ void AShooterBaseCharacter::EndPlay(
 )
 {
 	Super::EndPlay(EndPlayReason);
-	OnOwnerDespawn.ExecuteIfBound();
 }
 
 void AShooterBaseCharacter::Tick(
@@ -77,7 +84,13 @@ void AShooterBaseCharacter::SetupPlayerInputComponent(
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	if (!PlayerInputComponent || !WeaponComponent || !GetCapsuleComponent()) {
-		return;
+		UE_LOG(
+			LogShooterBaseCharacter,
+			Error,
+			TEXT("Error binding input actions! PlayerInputComponent: %d, WeaponComponent: %d, CapsuleComponent: %d"),
+			PlayerInputComponent, WeaponComponent, GetCapsuleComponent()
+		);
+		checkNoEntry();
 	}
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AShooterBaseCharacter::MoveForward);
@@ -93,6 +106,9 @@ void AShooterBaseCharacter::SetupPlayerInputComponent(
 
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::StartShooting);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, WeaponComponent, &UShooterWeaponComponent::StopShooting);
+
+	PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::EquipNextWeapon);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::ReloadWeapon);
 }
 
 bool AShooterBaseCharacter::IsRunning(
@@ -164,12 +180,17 @@ void AShooterBaseCharacter::OnDeath(
 	if (Controller) {
 		Controller->ChangeState(NAME_Spectating);
 	}
+
 	UCapsuleComponent *Capsule = GetCapsuleComponent();
 	if (Capsule) {
 		Capsule->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 		Capsule->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	}
-	OnOwnerDeath.Execute();
+
+	if (WeaponComponent) {
+		WeaponComponent->StopShooting();
+	}
+
 	SetLifeSpan(LifeSpanAfterDeath);
 }
 

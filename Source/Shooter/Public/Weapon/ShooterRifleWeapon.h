@@ -6,9 +6,7 @@
 #include "Weapon/ShooterBaseWeapon.h"
 #include "ShooterRifleWeapon.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class SHOOTER_API AShooterRifleWeapon : public AShooterBaseWeapon
 {
@@ -24,6 +22,9 @@ public:
 
 protected:
 
+	virtual void BeginPlay(
+	) override;
+
 	virtual void MakeShot(
 	) override;
 
@@ -36,13 +37,13 @@ protected:
 		FHitResult const &HitResult
 	);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClipMin = 0.0f))
+	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClampMin = 0.0f))
 	float DamagePerShot = 10.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClipMin = 0.0f))
+	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClampMin = 0.0f))
 	float ShotsPerMinute = 600.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClipMin = 0.0f))
+	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClampMin = 0.0f))
 	float BulletSpreadDegrees = 2.5f;
 
 private:

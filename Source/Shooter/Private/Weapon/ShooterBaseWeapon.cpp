@@ -31,10 +31,36 @@ void AShooterBaseWeapon::StopShooting(
 {
 }
 
+bool AShooterBaseWeapon::CanReload(
+) const
+{
+	return CurrentAmmo.Bullets < DefaultAmmo.Bullets && (CurrentAmmo.Clips > 0 || CurrentAmmo.bInfiniteAmmo);
+}
+
+void AShooterBaseWeapon::ChangeClip(
+)
+{
+	if (!CanReload()) {
+		UE_LOG(LogShooterBaseWeapon, Display, TEXT("ChangeClip failed - CanReload() is false"));
+		return;
+	}
+
+	if (CurrentAmmo.Clips > 0 && !CurrentAmmo.bInfiniteAmmo) {
+		--CurrentAmmo.Clips;
+	}
+	CurrentAmmo.Bullets = DefaultAmmo.Bullets;
+}
+
 void AShooterBaseWeapon::BeginPlay(
 )
 {
 	Super::BeginPlay();
+
+	check(WeaponMesh);
+
+	check(BulletMaxDistance > 0.0f);
+
+	CurrentAmmo = DefaultAmmo;
 }
 
 void AShooterBaseWeapon::MakeShot(
@@ -163,4 +189,53 @@ bool AShooterBaseWeapon::TraceShot(
 	World->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, CollisionParams);
 
 	return true;
+}
+
+void AShooterBaseWeapon::DecreaseAmmo(
+)
+{
+	if (IsAmmoEmpty()) {
+		UE_LOG(LogShooterBaseWeapon, Display, TEXT("DecreaseAmmo failed - IsAmmoEmpty is true"));
+		return;
+	}
+
+	if (IsClipEmpty()) {
+		OnEmptyClip.Broadcast();
+		return;
+	}
+
+	--CurrentAmmo.Bullets;
+	LogAmmo();
+
+	if (IsClipEmpty() && !IsAmmoEmpty()) {
+		OnEmptyClip.Broadcast();
+	}
+}
+
+bool AShooterBaseWeapon::IsAmmoEmpty(
+) const
+{
+	// Only true when ammo is not infinite and current clip is empty and no more clips left
+	return !CurrentAmmo.bInfiniteAmmo && IsClipEmpty() && CurrentAmmo.Clips == 0;
+}
+
+bool AShooterBaseWeapon::IsClipEmpty(
+) const
+{
+	return CurrentAmmo.Bullets == 0;
+}
+
+void AShooterBaseWeapon::LogAmmo(
+) const
+{
+	FString AmmoInfo = FString::Printf(
+		TEXT("Weapon: %s, Bullets: %d, Clips: %s, IsClipEmpty: %d, IsAmmoEmpty: %d"), 
+		*GetName(),
+		CurrentAmmo.Bullets,
+		CurrentAmmo.bInfiniteAmmo ? TEXT("Infinite") : *(FString::FromInt(CurrentAmmo.Clips)),
+		IsClipEmpty(),
+		IsAmmoEmpty()
+	);
+
+	UE_LOG(LogShooterBaseWeapon, Display, TEXT("%s"), *AmmoInfo);
 }

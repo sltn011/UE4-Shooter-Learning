@@ -10,6 +10,7 @@
 UCLASS()
 class SHOOTER_API AShooterPlayerController : public APlayerController
 {
+
 	GENERATED_BODY()
 	
 };
