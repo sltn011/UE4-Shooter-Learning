@@ -22,6 +22,12 @@ float UShooterHealthComponent::GetHealth(
 	return Health;
 }
 
+float UShooterHealthComponent::GetHealthPercent(
+) const
+{
+	return Health / MaxHealth;
+}
+
 bool UShooterHealthComponent::IsDead(
 ) const
 {

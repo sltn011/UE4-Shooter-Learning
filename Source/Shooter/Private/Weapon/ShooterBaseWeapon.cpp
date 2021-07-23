@@ -51,6 +51,18 @@ void AShooterBaseWeapon::ChangeClip(
 	CurrentAmmo.Bullets = DefaultAmmo.Bullets;
 }
 
+FWeaponUIData AShooterBaseWeapon::GetUIData(
+) const
+{
+	return UIData;
+}
+
+FAmmoData AShooterBaseWeapon::GetAmmoData(
+) const
+{
+	return CurrentAmmo;
+}
+
 void AShooterBaseWeapon::BeginPlay(
 )
 {
@@ -205,7 +217,6 @@ void AShooterBaseWeapon::DecreaseAmmo(
 	}
 
 	--CurrentAmmo.Bullets;
-	LogAmmo();
 
 	if (IsClipEmpty() && !IsAmmoEmpty()) {
 		OnEmptyClip.Broadcast();

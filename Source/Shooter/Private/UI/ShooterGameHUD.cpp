@@ -3,26 +3,26 @@
 
 #include "UI/ShooterGameHUD.h"
 
-#include "Engine/Canvas.h"
+#include "Blueprint/UserWidget.h"
 
 void AShooterGameHUD::DrawHUD(
 )
 {
     Super::DrawHUD();
-
-    DrawCrosshair();
 }
 
-void AShooterGameHUD::DrawCrosshair(
+void AShooterGameHUD::BeginPlay(
 )
 {
-    float ScreenSizeX = Canvas->SizeX;
-    float ScreenSizeY = Canvas->SizeY;
-    float ScreenCenterX = ScreenSizeX / 2.0f;
-    float ScreenCenterY = ScreenSizeY / 2.0f;
+    Super::BeginPlay();
 
-    float ArmLength = Size / 2.0f;
+    UWorld *World = GetWorld();
+    check(World);
 
-    DrawLine(ScreenCenterX - ArmLength, ScreenCenterY, ScreenCenterX + ArmLength, ScreenCenterY, Color, Thickness); // Horizontal
-    DrawLine(ScreenCenterX, ScreenCenterY - ArmLength, ScreenCenterX, ScreenCenterY + ArmLength, Color, Thickness); // Vertical
+    if (PlayerHUDWidgetClass) {
+        UUserWidget *PlayerHUDWidget = CreateWidget(World, PlayerHUDWidgetClass);
+        if (PlayerHUDWidget) {
+            PlayerHUDWidget->AddToViewport();
+        }
+    }
 }

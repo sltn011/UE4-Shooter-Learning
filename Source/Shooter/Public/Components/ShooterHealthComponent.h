@@ -22,6 +22,10 @@ public:
 	) const;
 
 	UFUNCTION(BlueprintCallable)
+	float GetHealthPercent(
+	) const;
+
+	UFUNCTION(BlueprintCallable)
 	bool IsDead(
 	) const;
 

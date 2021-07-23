@@ -6,10 +6,10 @@
 #include "GameFramework/HUD.h"
 #include "ShooterGameHUD.generated.h"
 
-
 UCLASS()
 class SHOOTER_API AShooterGameHUD : public AHUD
 {
+
 	GENERATED_BODY()
 	
 public:
@@ -19,21 +19,10 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Crosshair")
-	bool bEnableCrosshair = true;
+	virtual void BeginPlay(
+	) override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Crosshair", meta = (ClampMin = 1, EditCondition = "bEnableCrosshair"))
-	int32 Size = 15;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Crosshair", meta = (EditCondition = "bEnableCrosshair"))
-	FLinearColor Color = FLinearColor::Green;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Crosshair", meta = (ClampMin = 0.0f, EditCondition = "bEnableCrosshair"))
-	float Thickness = 2.0f;
-
-private:
-
-	void DrawCrosshair(
-	);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
 
 };

@@ -32,6 +32,12 @@ public:
 	void ChangeClip(
 	);
 
+	FWeaponUIData GetUIData(
+	) const;
+
+	FAmmoData GetAmmoData(
+	) const;
+
 	FOnEmptyClip OnEmptyClip;
 
 protected:
@@ -90,6 +96,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClampMin = 0.0f))
 	float BulletMaxDistance = 10000.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	FWeaponUIData UIData;
 
 
 private:

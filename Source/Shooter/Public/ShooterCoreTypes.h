@@ -38,10 +38,10 @@ struct FWeaponData {
 public:
 
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<AShooterBaseWeapon> WeaponClass;
+	TSubclassOf<AShooterBaseWeapon> WeaponClass;
 
 	UPROPERTY(EditDefaultsOnly)
-		UAnimMontage *ReloadAnimMontage;
+	UAnimMontage *ReloadAnimMontage;
 
 };
 
@@ -53,12 +53,27 @@ struct FAmmoData {
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = 1))
-		int32 Bullets;
+	int32 Bullets;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = 0, EditCondition = "!bInfiniteAmmo"))
-		int32 Clips;
+	int32 Clips;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-		bool bInfiniteAmmo;
+	bool bInfiniteAmmo;
+
+};
+
+USTRUCT(BlueprintType)
+struct FWeaponUIData {
+
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UTexture2D *WeaponIcon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UTexture2D *CrosshairIcon;
 
 };
