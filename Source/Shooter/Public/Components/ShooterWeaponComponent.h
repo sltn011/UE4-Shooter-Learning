@@ -101,7 +101,7 @@ private:
 	bool CanReload(
 	) const;
 
-	void ChangeClip(
+	void Reload(
 	);
 
 	UFUNCTION()
@@ -129,5 +129,6 @@ private:
 
 	int32 CurrentWeaponIndex = 0;
 
-	bool bActionAnimInProgress = false;
+	bool bEquipAnimInProgress = false;
+	bool bReloadAnimInProgress = false;
 };

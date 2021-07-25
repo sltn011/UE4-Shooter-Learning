@@ -53,13 +53,16 @@ struct FAmmoData {
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = 1))
-	int32 Bullets;
+	int32 BulletsInClip;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = 0, EditCondition = "!bInfiniteAmmo"))
 	int32 Clips;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bInfiniteAmmo;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 SpareBullets = 0;
 
 };
 

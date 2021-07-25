@@ -26,10 +26,16 @@ public:
 	virtual void StopShooting(
 	);
 
+	bool IsAmmoEmpty(
+	) const;
+
+	bool IsClipEmpty(
+	) const;
+
 	bool CanReload(
 	) const;
 
-	void ChangeClip(
+	void Reload(
 	);
 
 	FWeaponUIData GetUIData(
@@ -75,12 +81,6 @@ protected:
 
 	void DecreaseAmmo(
 	);
-
-	bool IsAmmoEmpty(
-	) const;
-
-	bool IsClipEmpty(
-	) const;
 
 	void LogAmmo(
 	) const;

@@ -17,7 +17,6 @@ UShooterWeaponComponent::UShooterWeaponComponent(
 )
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
 }
 
 
@@ -56,7 +55,7 @@ void UShooterWeaponComponent::ReloadWeapon(
 	if (!CanReload()) {
 		return;
 	}
-	ChangeClip();
+	Reload();
 }
 
 bool UShooterWeaponComponent::GetCurrentWeaponUIData(
@@ -206,7 +205,8 @@ void UShooterWeaponComponent::EquipWeapon(
 	CurrentReloadAnimMontage = WeaponReloadMontage;
 	CurrentWeaponIndex = WeaponIndex;
 
-	bActionAnimInProgress = true;
+	bReloadAnimInProgress = false; // If reload animation was playing it will be cancelled - reset it's flag
+	bEquipAnimInProgress = true;
 	PlayAnimMontage(EquipAnimMontage);
 }
 
@@ -272,22 +272,22 @@ void UShooterWeaponComponent::InitReloadAnimation(
 bool UShooterWeaponComponent::CanShoot(
 ) const
 {
-	return CurrentWeapon && !bActionAnimInProgress;
+	return CurrentWeapon && !CurrentWeapon->IsClipEmpty() && !bEquipAnimInProgress && !bReloadAnimInProgress;
 }
 
 bool UShooterWeaponComponent::CanEquip(
 ) const
 {
-	return Weapons.Num() && !bActionAnimInProgress;
+	return Weapons.Num() && !bEquipAnimInProgress; // Can change weapon even if reloading - this will cancel reload action
 }
 
 bool UShooterWeaponComponent::CanReload(
 ) const
 {
-	return CurrentWeapon && CurrentWeapon->CanReload() && !bActionAnimInProgress;
+	return CurrentWeapon && CurrentWeapon->CanReload() && !bEquipAnimInProgress && !bReloadAnimInProgress;
 }
 
-void UShooterWeaponComponent::ChangeClip(
+void UShooterWeaponComponent::Reload(
 )
 {
 	if (!CanReload()) {
@@ -295,9 +295,9 @@ void UShooterWeaponComponent::ChangeClip(
 	}
 
 	CurrentWeapon->StopShooting();
-	CurrentWeapon->ChangeClip();
+	//CurrentWeapon->Reload(); - Updating ammo data is done only after animation is finished
 
-	bActionAnimInProgress = true;
+	bReloadAnimInProgress = true;
 	PlayAnimMontage(CurrentReloadAnimMontage);
 }
 
@@ -305,9 +305,15 @@ void UShooterWeaponComponent::OnEquipFinished(
 	USkeletalMeshComponent *MeshComp
 )
 {
-	if (GetOwnerSkeletalMesh() == MeshComp) {
-		UE_LOG(LogShooterWeaponComponent, Display, TEXT("Equip Finished!"));
-		bActionAnimInProgress = false;
+	if (GetOwnerSkeletalMesh() != MeshComp) {
+		return;
+	}
+
+	UE_LOG(LogShooterWeaponComponent, Display, TEXT("Equip Finished!"));
+	bEquipAnimInProgress = false;
+
+	if (CurrentWeapon && CurrentWeapon->IsClipEmpty() && CanReload()) {
+		Reload();
 	}
 }
 
@@ -315,14 +321,22 @@ void UShooterWeaponComponent::OnReloadFinished(
 	USkeletalMeshComponent *MeshComp
 )
 {
-	if (GetOwnerSkeletalMesh() == MeshComp) {
-		UE_LOG(LogShooterWeaponComponent, Display, TEXT("Reload Finished!"));
-		bActionAnimInProgress = false;
+	if (GetOwnerSkeletalMesh() != MeshComp) {
+		return;
 	}
+
+	UE_LOG(LogShooterWeaponComponent, Display, TEXT("Reload Finished!"));
+	bReloadAnimInProgress = false;
+
+	if (!CanReload()) {
+		return;
+	}
+
+	CurrentWeapon->Reload();
 }
 
 void UShooterWeaponComponent::OnEmptyClip(
 )
 {
-	ChangeClip();
+	Reload();
 }

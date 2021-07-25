@@ -31,13 +31,26 @@ void AShooterBaseWeapon::StopShooting(
 {
 }
 
+bool AShooterBaseWeapon::IsAmmoEmpty(
+) const
+{
+	// Only true when ammo is not infinite and current clip is empty and no more spare bullets left
+	return !CurrentAmmo.bInfiniteAmmo && IsClipEmpty() && CurrentAmmo.SpareBullets == 0;
+}
+
+bool AShooterBaseWeapon::IsClipEmpty(
+) const
+{
+	return CurrentAmmo.BulletsInClip == 0;
+}
+
 bool AShooterBaseWeapon::CanReload(
 ) const
 {
-	return CurrentAmmo.Bullets < DefaultAmmo.Bullets && (CurrentAmmo.Clips > 0 || CurrentAmmo.bInfiniteAmmo);
+	return CurrentAmmo.BulletsInClip < DefaultAmmo.BulletsInClip && (CurrentAmmo.SpareBullets > 0 || CurrentAmmo.bInfiniteAmmo);
 }
 
-void AShooterBaseWeapon::ChangeClip(
+void AShooterBaseWeapon::Reload(
 )
 {
 	if (!CanReload()) {
@@ -45,10 +58,13 @@ void AShooterBaseWeapon::ChangeClip(
 		return;
 	}
 
-	if (CurrentAmmo.Clips > 0 && !CurrentAmmo.bInfiniteAmmo) {
-		--CurrentAmmo.Clips;
+	int32 BulletsMissing = DefaultAmmo.BulletsInClip - CurrentAmmo.BulletsInClip;
+	int32 BulletsCanBeAdded = CurrentAmmo.bInfiniteAmmo ? BulletsMissing : (BulletsMissing > CurrentAmmo.SpareBullets ? CurrentAmmo.SpareBullets : BulletsMissing);
+
+	if (!CurrentAmmo.bInfiniteAmmo) {
+		CurrentAmmo.SpareBullets -= BulletsCanBeAdded;
 	}
-	CurrentAmmo.Bullets = DefaultAmmo.Bullets;
+	CurrentAmmo.BulletsInClip += BulletsCanBeAdded;
 }
 
 FWeaponUIData AShooterBaseWeapon::GetUIData(
@@ -72,7 +88,11 @@ void AShooterBaseWeapon::BeginPlay(
 
 	check(BulletMaxDistance > 0.0f);
 
+	check(DefaultAmmo.BulletsInClip > 0);
+	check(DefaultAmmo.Clips >= 0);
+
 	CurrentAmmo = DefaultAmmo;
+	CurrentAmmo.SpareBullets = CurrentAmmo.BulletsInClip * CurrentAmmo.Clips;
 }
 
 void AShooterBaseWeapon::MakeShot(
@@ -216,34 +236,22 @@ void AShooterBaseWeapon::DecreaseAmmo(
 		return;
 	}
 
-	--CurrentAmmo.Bullets;
+	--CurrentAmmo.BulletsInClip;
+	LogAmmo();
 
 	if (IsClipEmpty() && !IsAmmoEmpty()) {
 		OnEmptyClip.Broadcast();
 	}
 }
 
-bool AShooterBaseWeapon::IsAmmoEmpty(
-) const
-{
-	// Only true when ammo is not infinite and current clip is empty and no more clips left
-	return !CurrentAmmo.bInfiniteAmmo && IsClipEmpty() && CurrentAmmo.Clips == 0;
-}
-
-bool AShooterBaseWeapon::IsClipEmpty(
-) const
-{
-	return CurrentAmmo.Bullets == 0;
-}
-
 void AShooterBaseWeapon::LogAmmo(
 ) const
 {
 	FString AmmoInfo = FString::Printf(
-		TEXT("Weapon: %s, Bullets: %d, Clips: %s, IsClipEmpty: %d, IsAmmoEmpty: %d"), 
+		TEXT("Weapon: %s, Bullets: %d, SpareBullets: %s, IsClipEmpty: %d, IsAmmoEmpty: %d"), 
 		*GetName(),
-		CurrentAmmo.Bullets,
-		CurrentAmmo.bInfiniteAmmo ? TEXT("Infinite") : *(FString::FromInt(CurrentAmmo.Clips)),
+		CurrentAmmo.BulletsInClip,
+		CurrentAmmo.bInfiniteAmmo ? TEXT("Infinite") : *(FString::FromInt(CurrentAmmo.SpareBullets)),
 		IsClipEmpty(),
 		IsAmmoEmpty()
 	);
