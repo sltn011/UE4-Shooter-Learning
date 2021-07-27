@@ -39,6 +39,13 @@ public:
 		FAmmoData &AmmoData
 	) const;
 
+	int32 AddAmmoToWeapon(
+		EAmmoRestoreType AmmoRestoreType,
+		TSubclassOf<AShooterBaseWeapon> RestockedWeaponClass,
+		int32 ClipsAdded,
+		int32 BulletsAdded
+	);
+
 protected:
 
 	virtual void BeginPlay(
@@ -59,6 +66,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage *EquipAnimMontage;
+
+	AShooterBaseWeapon *GetWeaponByClass(
+		TSubclassOf<AShooterBaseWeapon> WeaponClass
+	) const;
 
 private:
 
@@ -102,6 +113,13 @@ private:
 	) const;
 
 	void Reload(
+	);
+
+	int32 CalculateAmmoCanBeAdded(
+		AShooterBaseWeapon *RestockedWeapon,
+		EAmmoRestoreType AmmoRestoreType,
+		int32 ClipsAdded,
+		int32 BulletsAdded
 	);
 
 	UFUNCTION()

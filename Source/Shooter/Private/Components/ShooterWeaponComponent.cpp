@@ -78,8 +78,32 @@ bool UShooterWeaponComponent::GetCurrentWeaponAmmoData(
 		return false;
 	}
 
-	AmmoData = CurrentWeapon->GetAmmoData();
+	AmmoData = CurrentWeapon->GetCurrentAmmoData();
 	return true;
+}
+
+int32 UShooterWeaponComponent::AddAmmoToWeapon(
+	EAmmoRestoreType AmmoRestoreType,
+	TSubclassOf<AShooterBaseWeapon> RestockedWeaponClass,
+	int32 ClipsAdded,
+	int32 BulletsAdded
+)
+{
+	AShooterBaseWeapon *RestockedWeapon = GetWeaponByClass(RestockedWeaponClass);
+	if (!RestockedWeapon) {
+		return 0;
+	}
+
+	int32 AmmoToAdd = CalculateAmmoCanBeAdded(RestockedWeapon, AmmoRestoreType, ClipsAdded, BulletsAdded);
+
+	bool bClipWasEmpty = RestockedWeapon->IsClipEmpty();
+	RestockedWeapon->AddAmmo(AmmoToAdd);
+
+	if (CurrentWeapon == RestockedWeapon && bClipWasEmpty && RestockedWeapon->CanReload()) {
+		Reload();
+	}
+
+	return AmmoToAdd;
 }
 
 void UShooterWeaponComponent::BeginPlay(
@@ -121,6 +145,18 @@ void UShooterWeaponComponent::EndPlay(
 	Weapons.Empty();
 
 	Super::EndPlay(EndPlayReason);
+}
+
+AShooterBaseWeapon *UShooterWeaponComponent::GetWeaponByClass(
+	TSubclassOf<AShooterBaseWeapon> WeaponClass
+) const
+{
+	for (AShooterBaseWeapon *Weapon : Weapons) {
+		if (Weapon->IsA(WeaponClass)) {
+			return Weapon;
+		}
+	}
+	return nullptr;
 }
 
 void UShooterWeaponComponent::SpawnWeapons(
@@ -299,6 +335,56 @@ void UShooterWeaponComponent::Reload(
 
 	bReloadAnimInProgress = true;
 	PlayAnimMontage(CurrentReloadAnimMontage);
+}
+
+int32 UShooterWeaponComponent::CalculateAmmoCanBeAdded(
+	AShooterBaseWeapon *RestockedWeapon,
+	EAmmoRestoreType AmmoRestoreType,
+	int32 ClipsAdded,
+	int32 BulletsAdded
+)
+{
+	if (!RestockedWeapon) {
+		return 0;
+	}
+
+	FAmmoData DefaultAmmoData = RestockedWeapon->GetDefaultAmmoData();
+	FAmmoData CurrentAmmoData = RestockedWeapon->GetCurrentAmmoData();
+
+	if (CurrentAmmoData.bInfiniteAmmo) {
+		return 0;
+	}
+
+	int32 MaxBullets = DefaultAmmoData.BulletsInClip + DefaultAmmoData.BulletsInClip * DefaultAmmoData.Clips;
+	int32 CurrentBullets = CurrentAmmoData.BulletsInClip + CurrentAmmoData.SpareBullets;
+	int32 AmmoTriedToAdd = 0;
+
+	switch (AmmoRestoreType) {
+	case EAmmoRestoreType::ClipsOnly:
+		AmmoTriedToAdd = DefaultAmmoData.BulletsInClip * ClipsAdded;
+		break;
+
+	case EAmmoRestoreType::BulletsOnly:
+		AmmoTriedToAdd = BulletsAdded;
+		break;
+
+	case EAmmoRestoreType::ClipsAndBullets:
+		AmmoTriedToAdd = DefaultAmmoData.BulletsInClip * ClipsAdded + BulletsAdded;
+		break;
+
+	default:
+		AmmoTriedToAdd = 0;
+		break;
+	}
+
+	int32 AmmoCanBeAdded = FMath::Min(MaxBullets - CurrentBullets, AmmoTriedToAdd);
+
+	UE_LOG(
+		LogShooterWeaponComponent, Display, TEXT("Ammo Restock Log: Weapon: %s, Max: %d, Current: %d, TriedToAdd: %d, CanBeAdded: %d"),
+		*RestockedWeapon->GetName(), MaxBullets, CurrentBullets, AmmoTriedToAdd, AmmoCanBeAdded
+	);
+
+	return AmmoCanBeAdded;
 }
 
 void UShooterWeaponComponent::OnEquipFinished(

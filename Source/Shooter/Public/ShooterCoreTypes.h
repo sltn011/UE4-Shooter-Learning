@@ -21,6 +21,20 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);
 
 
 /*
+ * Pickups
+ */
+
+UENUM(BlueprintType)
+enum class EAmmoRestoreType : uint8 {
+	ClipsOnly,
+	BulletsOnly,
+	ClipsAndBullets
+};
+
+
+
+
+/*
  * WEAPON
  */
 

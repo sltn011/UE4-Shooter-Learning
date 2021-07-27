@@ -16,6 +16,24 @@ UShooterHealthComponent::UShooterHealthComponent(
 }
 
 
+float UShooterHealthComponent::RestoreHealth(
+	float HealthRestoredAmount
+)
+{
+	if (HealthRestoredAmount <= 0.0f) {
+		return 0.0f;
+	}
+
+	float HealthBefore = Health;
+	SetHealth(Health + HealthRestoredAmount);
+
+	UE_LOG(LogShooterHealthComponent, Display, TEXT("Health Restore Log: Character: %s, Before: %.3f, After: %.3f, Restored: %.3f"),
+		*GetOwner()->GetName(), HealthBefore, Health, Health - HealthBefore
+	);
+
+	return Health - HealthBefore;
+}
+
 float UShooterHealthComponent::GetHealth(
 ) const
 {

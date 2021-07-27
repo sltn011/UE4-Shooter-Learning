@@ -15,7 +15,12 @@ class SHOOTER_API UShooterHealthComponent : public UActorComponent
 
 public:	
 
-	UShooterHealthComponent();
+	UShooterHealthComponent(
+	);
+
+	float RestoreHealth(
+		float HealthRestoredAmount
+	);
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealth(

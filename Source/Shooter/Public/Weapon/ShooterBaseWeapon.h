@@ -38,10 +38,17 @@ public:
 	void Reload(
 	);
 
+	void AddAmmo(
+		int32 AmmoToAdd
+	);
+
 	FWeaponUIData GetUIData(
 	) const;
 
-	FAmmoData GetAmmoData(
+	FAmmoData GetDefaultAmmoData(
+	) const;
+
+	FAmmoData GetCurrentAmmoData(
 	) const;
 
 	FOnEmptyClip OnEmptyClip;

@@ -67,13 +67,30 @@ void AShooterBaseWeapon::Reload(
 	CurrentAmmo.BulletsInClip += BulletsCanBeAdded;
 }
 
+void AShooterBaseWeapon::AddAmmo(
+	int32 AmmoToAdd
+)
+{
+	if (AmmoToAdd <= 0) {
+		return;
+	}
+
+	CurrentAmmo.SpareBullets += AmmoToAdd;
+}
+
 FWeaponUIData AShooterBaseWeapon::GetUIData(
 ) const
 {
 	return UIData;
 }
 
-FAmmoData AShooterBaseWeapon::GetAmmoData(
+FAmmoData AShooterBaseWeapon::GetDefaultAmmoData(
+) const
+{
+	return DefaultAmmo;
+}
+
+FAmmoData AShooterBaseWeapon::GetCurrentAmmoData(
 ) const
 {
 	return CurrentAmmo;
