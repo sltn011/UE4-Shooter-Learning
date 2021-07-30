@@ -7,21 +7,25 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Weapon/Components/ShooterWeaponFXComponent.h"
 
 AShooterBaseProjectile::AShooterBaseProjectile(
 )
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	SphereCollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollisionComponent"));
-	SphereCollisionComponent->InitSphereRadius(5.0f);
-	SphereCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	SphereCollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	SetRootComponent(SphereCollisionComponent);
+	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollisionComponent"));
+	CollisionComponent->InitSphereRadius(5.0f);
+	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	CollisionComponent->bReturnMaterialOnMove = true;
+	SetRootComponent(CollisionComponent);
 
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementComponent"));
 	MovementComponent->InitialSpeed = 2500.0f;
 	MovementComponent->ProjectileGravityScale = 0.0f;
+
+	WeaponFXComponent = CreateDefaultSubobject<UShooterWeaponFXComponent>(TEXT("WeaponFXComponent"));
 }
 
 void AShooterBaseProjectile::BeginPlay(
@@ -29,15 +33,16 @@ void AShooterBaseProjectile::BeginPlay(
 {
 	Super::BeginPlay();
 
-	check(SphereCollisionComponent);
+	check(CollisionComponent);
 	check(MovementComponent);
+	check(WeaponFXComponent);
 
 	check(TimeToLive > 0.0f);
 	check(DamageAmount > 0.0f);
 	check(AreaRadius > 0.0f);
 
-	SphereCollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);
-	SphereCollisionComponent->OnComponentHit.AddDynamic(this, &AShooterBaseProjectile::OnHit);
+	CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);
+	CollisionComponent->OnComponentHit.AddDynamic(this, &AShooterBaseProjectile::OnHit);
 
 	MovementComponent->Velocity = ShotDirection * MovementComponent->InitialSpeed;
 
@@ -49,21 +54,36 @@ void AShooterBaseProjectile::OnHit(
 	AActor *OtherActor,
 	UPrimitiveComponent *OtherComp,
 	FVector NormalImpulse,
-	const FHitResult &Hit
+	FHitResult const &Hit
 )
 {
 	UWorld *World = GetWorld();
-	if (!World || !MovementComponent) {
+	if (!World || !MovementComponent || !WeaponFXComponent) {
 		return;
 	}
 
 	MovementComponent->StopMovementImmediately();
 
-	FVector ProjectileLocation = GetActorLocation();
+	FVector ImpactLocation = GetActorLocation();
 	
-	UGameplayStatics::ApplyRadialDamage(World, DamageAmount, ProjectileLocation, AreaRadius, UDamageType::StaticClass(), {}, this, GetOwnerController(), DoFullDamage);
+	AtImpactLocation(ImpactLocation, Hit);
+}
 
-	DrawDebugSphere(World, ProjectileLocation, AreaRadius, 24, FColor::Cyan, false, 3.0f);
+void AShooterBaseProjectile::AtImpactLocation(
+	FVector const &ImpactLocation,
+	FHitResult const &Hit
+)
+{
+	UWorld *World = GetWorld();
+	if (!World) {
+		return;
+	}
+
+	UGameplayStatics::ApplyRadialDamage(World, DamageAmount, ImpactLocation, AreaRadius, UDamageType::StaticClass(), {}, this, GetOwnerController(), DoFullDamage);
+
+	WeaponFXComponent->PlayImpactFX(Hit);
+
+	DrawDebugSphere(World, ImpactLocation, AreaRadius, 24, FColor::Cyan, false, 3.0f);
 
 	Destroy();
 }

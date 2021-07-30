@@ -6,8 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "ShooterBaseProjectile.generated.h"
 
-class USphereComponent;
 class UProjectileMovementComponent;
+class UShooterWeaponFXComponent;
+class USphereComponent;
 
 UCLASS()
 class SHOOTER_API AShooterBaseProjectile : public AActor
@@ -27,19 +28,24 @@ protected:
 	) override;
 
 	UFUNCTION()
-	virtual void OnHit(
+	void OnHit(
 		UPrimitiveComponent *HitComponent, 
 		AActor *OtherActor,
 		UPrimitiveComponent *OtherComp,
 		FVector NormalImpulse,
-		const FHitResult &Hit
+		FHitResult const &Hit
+	);
+
+	virtual void AtImpactLocation(
+		FVector const &ImpactLocation,
+		FHitResult const &Hit
 	);
 
 	AController *GetOwnerController(
 	) const;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
-	USphereComponent *SphereCollisionComponent;
+	USphereComponent *CollisionComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
 	UProjectileMovementComponent *MovementComponent;
@@ -55,5 +61,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	bool DoFullDamage = false;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	UShooterWeaponFXComponent *WeaponFXComponent;
 
 };

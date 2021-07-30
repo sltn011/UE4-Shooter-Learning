@@ -5,6 +5,15 @@
 
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Weapon/Components/ShooterWeaponFXComponent.h"
+
+AShooterRifleWeapon::AShooterRifleWeapon(
+)
+{
+	WeaponFXComponent = CreateDefaultSubobject<UShooterWeaponFXComponent>(TEXT("WeaponFXComponent"));
+}
 
 void AShooterRifleWeapon::StartShooting(
 )
@@ -12,6 +21,7 @@ void AShooterRifleWeapon::StartShooting(
 	if (!GetWorld()) {
 		return;
 	}
+	InitMuzzleFX();
 	GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &AShooterRifleWeapon::MakeShot, 60.0f / ShotsPerMinute, true, 0.0f);
 }
 
@@ -21,6 +31,7 @@ void AShooterRifleWeapon::StopShooting(
 	if (!GetWorld()) {
 		return;
 	}
+	SetMuzzleFXVisibility(false);
 	GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
 }
 
@@ -28,6 +39,8 @@ void AShooterRifleWeapon::BeginPlay(
 )
 {
 	Super::BeginPlay();
+
+	check(WeaponFXComponent);
 
 	check(DamagePerShot > 0.0f);
 	check(ShotsPerMinute > 0.0f);
@@ -43,7 +56,7 @@ void AShooterRifleWeapon::MakeShot(
 	}
 
 	UWorld *World = GetWorld();
-	if (!World || !WeaponMesh) {
+	if (!World || !WeaponMesh || !WeaponFXComponent) {
 		StopShooting();
 		return;
 	}
@@ -60,7 +73,6 @@ void AShooterRifleWeapon::MakeShot(
 		return;
 	}
 
-
 	if (HitResult.bBlockingHit) {
 		FVector const HitDirection = (HitResult.ImpactPoint - TraceStart).GetSafeNormal();
 		FVector const MuzzleForward = GetMuzzleWorldDirection();
@@ -70,12 +82,13 @@ void AShooterRifleWeapon::MakeShot(
 
 		DealDamage(HitResult);
 
-		DrawDebugLine(World, TraceStart, HitResult.ImpactPoint, FColor::Red, false, 3.0f);
-		DrawDebugSphere(World, HitResult.ImpactPoint, 10.0f, 24, FColor::Red, false, 3.0f);
+		WeaponFXComponent->PlayImpactFX(HitResult);
 	}
-	else {
-		DrawDebugLine(World, TraceStart, TraceEnd, FColor::Red, false, 3.0f);
-	}
+
+	FVector TraceFXBegin = TraceStart;
+	FVector TraceFXEnd = HitResult.bBlockingHit ? HitResult.ImpactPoint : TraceEnd;
+
+	SpawnTraceFX(TraceFXBegin, TraceFXEnd);
 
 	DecreaseAmmo();
 }
@@ -131,4 +144,47 @@ bool AShooterRifleWeapon::DealDamage(
 
 	HitActor->TakeDamage(DamagePerShot, {}, GetPlayerController(), this);
 	return true;
+}
+
+void AShooterRifleWeapon::InitMuzzleFX(
+)
+{
+	if (!MuzzleFXComponent) {
+		MuzzleFXComponent = SpawnMuzzleFX();
+	}
+
+	SetMuzzleFXVisibility(true);
+}
+
+void AShooterRifleWeapon::SetMuzzleFXVisibility(
+	bool bIsVisible
+)
+{
+	if (!MuzzleFXComponent) {
+		return;
+	}
+
+	MuzzleFXComponent->SetPaused(!bIsVisible);
+	MuzzleFXComponent->SetVisibility(bIsVisible);
+}
+
+void AShooterRifleWeapon::SpawnTraceFX(
+	FVector const &Begin,
+	FVector const &End
+)
+{
+	UWorld *World = GetWorld();
+	if (!World) {
+		return;
+	}
+
+	UNiagaraComponent *TraceFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		World,
+		TraceFX,
+		Begin
+	);
+
+	if (TraceFXComponent) {
+		TraceFXComponent->SetNiagaraVariableVec3(TraceTargetName, End);
+	}
 }

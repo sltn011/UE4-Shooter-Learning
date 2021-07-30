@@ -25,6 +25,9 @@ public:
 	void StopShooting(
 	);
 
+	bool IsShooting(
+	) const;
+
 	void EquipNextWeapon(
 	);
 
@@ -146,6 +149,8 @@ private:
 	UAnimMontage *CurrentReloadAnimMontage = nullptr;
 
 	int32 CurrentWeaponIndex = 0;
+
+	bool bIsShooting = false;
 
 	bool bEquipAnimInProgress = false;
 	bool bReloadAnimInProgress = false;

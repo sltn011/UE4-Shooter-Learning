@@ -7,6 +7,7 @@
 #include "ShooterCoreTypes.h"
 #include "ShooterHealthComponent.generated.h"
 
+class UCameraShakeBase;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOTER_API UShooterHealthComponent : public UActorComponent
@@ -46,17 +47,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
 	float MaxHealth = 100.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Healing")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Healing")
 	bool bAutoHeal = true;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Healing", meta = (ClampMin = 0.0f, EditCondition = "bAutoHeal"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Healing", meta = (ClampMin = 0.0f, EditCondition = "bAutoHeal"))
 	float AutoHealStartDelay = 5.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Healing", meta = (ClampMin = 0.0f, EditCondition = "bAutoHeal"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Healing", meta = (ClampMin = 0.0f, EditCondition = "bAutoHeal"))
 	float AutoHealUpdateTime = 1.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Healing", meta = (ClampMin = 0.0f, EditCondition = "bAutoHeal"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Healing", meta = (ClampMin = 0.0f, EditCondition = "bAutoHeal"))
 	float AutoHealAddedValue = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	TSubclassOf<UCameraShakeBase> OnDamageCameraShake;
 
 private:
 
@@ -69,9 +73,16 @@ private:
 		AActor *DamageCauser
 	);
 
-	void SetHealth(float NewHealth);
+	void SetHealth(
+		float NewHealth
+	);
 
-	void AutoHeal();
+	void AutoHeal(
+	);
+
+	void PlayCameraShake(
+		TSubclassOf<UCameraShakeBase> CameraShake
+	);
 
 	float Health = 0.0f;
 

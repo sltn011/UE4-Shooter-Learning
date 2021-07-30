@@ -8,6 +8,8 @@
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "TimerManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterBaseWeapon, All, All);
@@ -234,6 +236,7 @@ bool AShooterBaseWeapon::TraceShot(
 
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
+	CollisionParams.bReturnPhysicalMaterial = true;
 
 	World->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, CollisionParams);
 
@@ -274,4 +277,18 @@ void AShooterBaseWeapon::LogAmmo(
 	);
 
 	UE_LOG(LogShooterBaseWeapon, Display, TEXT("%s"), *AmmoInfo);
+}
+
+UNiagaraComponent *AShooterBaseWeapon::SpawnMuzzleFX(
+)
+{
+	return UNiagaraFunctionLibrary::SpawnSystemAttached(
+		MuzzleFX,
+		WeaponMesh,
+		MuzzleSocketName,
+		FVector::ZeroVector,
+		FRotator::ZeroRotator,
+		EAttachLocation::SnapToTarget,
+		true
+	);
 }

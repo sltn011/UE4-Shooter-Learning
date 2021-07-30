@@ -8,6 +8,8 @@
 #include "ShooterBaseWeapon.generated.h"
 
 class APlayerController;
+class UNiagaraComponent;
+class UNiagaraSystem;
 class USkeletalMeshComponent;
 
 UCLASS()
@@ -92,21 +94,26 @@ protected:
 	void LogAmmo(
 	) const;
 
+	UNiagaraComponent *SpawnMuzzleFX(
+	);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USkeletalMeshComponent *WeaponMesh;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Ammo")
 	FAmmoData DefaultAmmo;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Socket")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Socket")
 	FName MuzzleSocketName = TEXT("MuzzleSocket");
 
-	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClampMin = 0.0f))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting", meta = (ClampMin = 0.0f))
 	float BulletMaxDistance = 10000.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	FWeaponUIData UIData;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	UNiagaraSystem *MuzzleFX;
 
 private:
 

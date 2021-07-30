@@ -20,6 +20,7 @@ AShooterBasePickup::AShooterBasePickup(
 	SetRootComponent(CollisionComponent);
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MeshComponent->SetupAttachment(GetRootComponent());
 }
 

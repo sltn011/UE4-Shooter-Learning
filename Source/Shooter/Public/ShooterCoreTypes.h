@@ -10,13 +10,12 @@
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnNotified, USkeletalMeshComponent *);
 
 
-
 /*
  * HEALTH
  */
 
 DECLARE_MULTICAST_DELEGATE(FOnDeath);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, float);
 
 
 
@@ -31,6 +30,48 @@ enum class EAmmoRestoreType : uint8 {
 	ClipsAndBullets
 };
 
+
+
+/*
+ * VFX
+ */
+
+class UNiagaraSystem;
+
+USTRUCT(BlueprintType)
+struct FDecalData {
+
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UMaterialInterface *Material;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FVector Size = FVector(10.0f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float LifeTime = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float FadeOutTime = 1.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FImpactData {
+
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UNiagaraSystem *Effect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FDecalData ImpactDecal;
+
+};
 
 
 

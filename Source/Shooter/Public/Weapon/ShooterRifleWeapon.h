@@ -6,13 +6,19 @@
 #include "Weapon/ShooterBaseWeapon.h"
 #include "ShooterRifleWeapon.generated.h"
 
+class UNiagaraComponent;
+class UNiagaraSystem;
+class UShooterWeaponFXComponent;
 
 UCLASS()
 class SHOOTER_API AShooterRifleWeapon : public AShooterBaseWeapon
 {
 	GENERATED_BODY()
-	
+
 public:
+
+	AShooterRifleWeapon(
+	);
 
 	virtual void StartShooting(
 	) override;
@@ -46,7 +52,31 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClampMin = 0.0f))
 	float BulletSpreadDegrees = 2.5f;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	UShooterWeaponFXComponent *WeaponFXComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	UNiagaraSystem *TraceFX;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	FString TraceTargetName = TEXT("TraceTarget");
+
 private:
+
+	void InitMuzzleFX(
+	);
+
+	void SetMuzzleFXVisibility(
+		bool bIsVisible
+	);
+
+	void SpawnTraceFX(
+		FVector const &Begin,
+		FVector const &End
+	);
+
+	UPROPERTY()
+	UNiagaraComponent *MuzzleFXComponent;
 
 	FTimerHandle ShootingTimerHandle;
 

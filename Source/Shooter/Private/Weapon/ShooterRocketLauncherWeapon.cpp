@@ -55,4 +55,6 @@ void AShooterRocketLauncherWeapon::MakeShot(
 	Projectile->FinishSpawning(SpawnTransform);
 
 	DecreaseAmmo();
+
+	SpawnMuzzleFX();
 }

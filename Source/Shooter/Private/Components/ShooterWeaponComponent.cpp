@@ -26,6 +26,7 @@ void UShooterWeaponComponent::StartShooting(
 	if (!CanShoot()) {
 		return;
 	}
+	bIsShooting = true;
 	CurrentWeapon->StartShooting();
 }
 
@@ -35,7 +36,14 @@ void UShooterWeaponComponent::StopShooting(
 	if (!CurrentWeapon) {
 		return;
 	}
+	bIsShooting = false;
 	CurrentWeapon->StopShooting();
+}
+
+bool UShooterWeaponComponent::IsShooting(
+) const
+{
+	return bIsShooting;
 }
 
 void UShooterWeaponComponent::EquipNextWeapon(

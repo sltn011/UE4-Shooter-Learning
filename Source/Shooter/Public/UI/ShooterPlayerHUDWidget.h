@@ -16,6 +16,9 @@ class SHOOTER_API UShooterPlayerHUDWidget : public UUserWidget
 	
 public:
 
+	virtual bool Initialize(
+	) override;
+
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	float GetHealthPercent(
 	) const;
@@ -42,5 +45,16 @@ public:
 	bool GetCurrentWeaponAmmoText(
 		FText &AmmoText
 	) const;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+	void OnTakeDamage( // No definition needed
+	);
+
+private:
+
+	void OnHealthChanged(
+		float NewHealth,
+		float HealthDelta
+	);
 
 };

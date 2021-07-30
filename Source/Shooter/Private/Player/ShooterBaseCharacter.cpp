@@ -56,7 +56,7 @@ void AShooterBaseCharacter::BeginPlay(
 
 	check(LifeSpanAfterDeath >= 0.0f);
 
-	OnHealthChanged(HealthComponent->GetHealth());
+	OnHealthChanged(HealthComponent->GetHealth(), HealthComponent->GetHealth());
 	HealthComponent->OnHealthChanged.AddUObject(this, &AShooterBaseCharacter::OnHealthChanged);
 	HealthComponent->OnDeath.AddUObject(this, &AShooterBaseCharacter::OnDeath);
 
@@ -104,8 +104,8 @@ void AShooterBaseCharacter::SetupPlayerInputComponent(
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AShooterBaseCharacter::StartRunning);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AShooterBaseCharacter::StopRunning);
 
-	PlayerInputComponent->BindAction("Shoot", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::StartShooting);
-	PlayerInputComponent->BindAction("Shoot", IE_Released, WeaponComponent, &UShooterWeaponComponent::StopShooting);
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AShooterBaseCharacter::StartShooting);
+	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &AShooterBaseCharacter::StopShooting);
 
 	PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::EquipNextWeapon);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::ReloadWeapon);
@@ -153,6 +153,9 @@ void AShooterBaseCharacter::MoveRight(
 void AShooterBaseCharacter::StartRunning(
 )
 {
+	if (WeaponComponent->IsShooting()) {
+		WeaponComponent->StopShooting(); // Can't shoot while running
+	}
 	bIsRunning = true;
 }
 
@@ -162,8 +165,22 @@ void AShooterBaseCharacter::StopRunning(
 	bIsRunning = false;
 }
 
+void AShooterBaseCharacter::StartShooting(
+)
+{
+	bIsRunning = false; // Can't shoot while running
+	WeaponComponent->StartShooting();
+}
+
+void AShooterBaseCharacter::StopShooting(
+)
+{
+	WeaponComponent->StopShooting();
+}
+
 void AShooterBaseCharacter::OnHealthChanged(
-	float NewHealth
+	float NewHealth,
+	float HealthDelta
 )
 {
 	if (HealthTextComponent) {
@@ -175,7 +192,7 @@ void AShooterBaseCharacter::OnDeath(
 )
 {
 	//if (DeathAnimMontage) - Already exists in PlayAnimMontage
-	PlayAnimMontage(DeathAnimMontage);
+	//PlayAnimMontage(DeathAnimMontage);
 	
 	if (Controller) {
 		Controller->ChangeState(NAME_Spectating);
@@ -189,6 +206,12 @@ void AShooterBaseCharacter::OnDeath(
 
 	if (WeaponComponent) {
 		WeaponComponent->StopShooting();
+	}
+
+	USkeletalMeshComponent *PlayerMesh = GetMesh();
+	if (PlayerMesh) {
+		PlayerMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		PlayerMesh->SetSimulatePhysics(true);
 	}
 
 	SetLifeSpan(LifeSpanAfterDeath);

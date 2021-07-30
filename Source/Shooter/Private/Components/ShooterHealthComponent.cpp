@@ -3,8 +3,11 @@
 
 #include "Components/ShooterHealthComponent.h"
 
+#include "Camera/CameraShake.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Controller.h"
+#include "GameFramework/Pawn.h"
 #include "TimerManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterHealthComponent, All, All);
@@ -88,6 +91,8 @@ void UShooterHealthComponent::OnTakeAnyDamage(
 
 	SetHealth(Health - Damage);
 
+	PlayCameraShake(OnDamageCameraShake);
+
 	GetWorld()->GetTimerManager().ClearTimer(AutoHealTimerHandle);
 
 	if (IsDead()) {
@@ -104,8 +109,15 @@ void UShooterHealthComponent::SetHealth(
 	float NewHealth
 )
 {
-	Health = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
-	OnHealthChanged.Broadcast(Health);
+	NewHealth = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
+
+	if (FMath::IsNearlyEqual(NewHealth, Health)) {
+		return;
+	}
+
+	float HealtDelta = NewHealth - Health;
+	Health = NewHealth;
+	OnHealthChanged.Broadcast(Health, HealtDelta);
 }
 
 void UShooterHealthComponent::AutoHeal(
@@ -118,4 +130,25 @@ void UShooterHealthComponent::AutoHeal(
 			GetWorld()->GetTimerManager().ClearTimer(AutoHealTimerHandle);
 		}
 	}
+}
+
+void UShooterHealthComponent::PlayCameraShake(
+	TSubclassOf<UCameraShakeBase> CameraShake
+)
+{
+	if (!CameraShake && IsDead()) {
+		return;
+	}
+
+	APawn *OwnerPawn = Cast<APawn>(GetOwner());
+	if (!OwnerPawn) {
+		return;
+	}
+
+	APlayerController *OwnerController = OwnerPawn->GetController<APlayerController>();
+	if (!OwnerController || !OwnerController->PlayerCameraManager) {
+		return;
+	}
+
+	OwnerController->PlayerCameraManager->StartCameraShake(CameraShake);
 }

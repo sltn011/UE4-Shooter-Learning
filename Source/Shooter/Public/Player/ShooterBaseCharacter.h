@@ -52,9 +52,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
 	UShooterWeaponComponent *WeaponComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	UAnimMontage *DeathAnimMontage;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Movement(Fall)")
 	FVector2D MinMaxDamagingFallVelocities = FVector2D(900.0f, 1800.0f);
 
@@ -100,8 +97,16 @@ private:
 	);
 
 
+	void StartShooting(
+	);
+
+	void StopShooting(
+	);
+
+
 	void OnHealthChanged(
-		float NewHealth
+		float NewHealth,
+		float HealthDelta
 	);
 	
 	void OnDeath(

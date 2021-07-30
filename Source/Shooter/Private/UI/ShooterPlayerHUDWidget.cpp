@@ -7,6 +7,22 @@
 #include "Components/ShooterWeaponComponent.h"
 #include "ShooterUtils.h"
 
+bool UShooterPlayerHUDWidget::Initialize(
+)
+{
+    bool ParentResult = Super::Initialize();
+
+    UShooterHealthComponent *PlayerHealthComponent = ShooterUtils::GetPlayerComponentByClass<UShooterHealthComponent>(GetOwningPlayerPawn());
+
+    if (!PlayerHealthComponent) {
+        return false;
+    }
+
+    PlayerHealthComponent->OnHealthChanged.AddUObject(this, &UShooterPlayerHUDWidget::OnHealthChanged);
+
+    return ParentResult;
+}
+
 float UShooterPlayerHUDWidget::GetHealthPercent(
 ) const
 {
@@ -73,4 +89,14 @@ bool UShooterPlayerHUDWidget::GetCurrentWeaponAmmoText(
     FString AmmoDataString = FString::Printf(TEXT("%s / %s"), *BulletsString, *SpareBulletsString);
     AmmoText = FText::FromString(AmmoDataString);
     return true;
+}
+
+void UShooterPlayerHUDWidget::OnHealthChanged(
+    float NewHealth,
+    float HealthDelta
+)
+{
+    if (HealthDelta < 0.0f) {
+        OnTakeDamage();
+    }
 }
