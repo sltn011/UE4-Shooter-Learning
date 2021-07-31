@@ -25,7 +25,7 @@ AShooterBaseCharacter::AShooterBaseCharacter(
 	SpringArmComponent->SetupAttachment(GetRootComponent());
 	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->AddRelativeLocation(FVector{ 0.0f, 0.0f, 65.0f });
-	SpringArmComponent->SocketOffset = FVector{ 0.0f, 75.0f, 0.0f };
+	SpringArmComponent->SocketOffset = FVector{ 0.0f, 100.0f, 0.0f };
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
