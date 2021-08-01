@@ -3,14 +3,46 @@
 
 #include "AI/ShooterAIController.h"
 
-#include "BehaviorTree/BehaviorTree.h"
+#include "AI/ShooterAICharacter.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Components/ShooterAIPerceptionComponent.h"
 
-void AShooterAIController::BeginPlay(
+AShooterAIController::AShooterAIController(
 )
 {
-    Super::BeginPlay();
+	AIPerceptionComponent = CreateDefaultSubobject<UShooterAIPerceptionComponent>(TEXT("PerceptionComponent"));
+	SetPerceptionComponent(*AIPerceptionComponent);
+}
 
-    if (BehaviorTree) {
-        RunBehaviorTree(BehaviorTree);
-    }
+void AShooterAIController::OnPossess(
+	APawn *PossessedPawn
+)
+{
+	Super::OnPossess(PossessedPawn);
+
+	AShooterAICharacter *AICharacter = Cast<AShooterAICharacter>(PossessedPawn);
+	if (AICharacter && AICharacter->BehaviorTreeAsset) {
+		RunBehaviorTree(AICharacter->BehaviorTreeAsset);
+	}
+}
+
+void AShooterAIController::Tick(
+	float DeltaTime
+)
+{
+	Super::Tick(DeltaTime);
+
+	AActor *ClosestActor = GetFocusOnActor();
+	SetFocus(ClosestActor);
+}
+
+AActor *AShooterAIController::GetFocusOnActor(
+) const
+{
+	UBlackboardComponent const *BlackboardComponent = GetBlackboardComponent();
+	if (!BlackboardComponent) {
+		return nullptr;
+	}
+	return Cast<AActor>(BlackboardComponent->GetValueAsObject(FocusOnActorKeyName));
 }

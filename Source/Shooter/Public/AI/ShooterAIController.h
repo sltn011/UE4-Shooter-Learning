@@ -6,7 +6,7 @@
 #include "AIController.h"
 #include "ShooterAIController.generated.h"
 
-class UBehaviorTree;
+class UShooterAIPerceptionComponent;
 
 UCLASS()
 class SHOOTER_API AShooterAIController : public AAIController
@@ -16,12 +16,28 @@ class SHOOTER_API AShooterAIController : public AAIController
 
 public:
 
-	virtual void BeginPlay(
-	) override;
+	AShooterAIController(
+	);
 
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	UBehaviorTree *BehaviorTree;
-	
+	virtual void OnPossess(
+		APawn *PossessedPawn
+	) override;
+
+	virtual void Tick(
+		float DeltaTime
+	) override;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Perception")
+	UShooterAIPerceptionComponent *AIPerceptionComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Perception")
+	FName FocusOnActorKeyName = "EnemyActor";
+
+private:
+
+	AActor *GetFocusOnActor(
+	) const;
+
 };

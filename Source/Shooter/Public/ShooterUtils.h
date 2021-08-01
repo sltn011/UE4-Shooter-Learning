@@ -1,6 +1,6 @@
 #pragma once
 
-class APawn;
+class AActor;
 
 class ShooterUtils {
 
@@ -8,14 +8,14 @@ public:
 
     template<typename ComponentT>
     static ComponentT *GetPlayerComponentByClass(
-        APawn const *PlayerPawn
+        AActor const *PlayerActor
     )
     {
-        if (!PlayerPawn) {
+        if (!PlayerActor) {
             return nullptr;
         }
 
-        return Cast<ComponentT>(PlayerPawn->GetComponentByClass(ComponentT::StaticClass()));
+        return Cast<ComponentT>(PlayerActor->GetComponentByClass(ComponentT::StaticClass()));
     }
 
 };

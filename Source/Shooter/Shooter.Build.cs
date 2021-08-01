@@ -33,7 +33,8 @@ public class Shooter : ModuleRules
 			"Shooter/Public/Animations",
 			"Shooter/Public/Pickups",
 			"Shooter/Public/AI",
-			"Shooter/Public/AI/Tasks"
+			"Shooter/Public/AI/Tasks",
+			"Shooter/Public/AI/Services"
 		});
 
 		// Uncomment if you are using Slate UI

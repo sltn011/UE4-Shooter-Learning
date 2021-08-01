@@ -7,6 +7,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NavigationSystem.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogShooterNextLocationTask, All, All);
+
 UShooterNextLocationTask::UShooterNextLocationTask(
 )
 {
@@ -34,13 +36,23 @@ EBTNodeResult::Type UShooterNextLocationTask::ExecuteTask(
         return EBTNodeResult::Failed;
     }
 
+    FVector SearchAreaCenter = Pawn->GetActorLocation();
+    if (!bSelfCentered) {
+        AActor *CenterActor = Cast<AActor>(Blackboard->GetValueAsObject(CenterActorKey.SelectedKeyName));
+        if (!CenterActor) {
+            return EBTNodeResult::Failed;
+        }
+        SearchAreaCenter = CenterActor->GetActorLocation();
+    }
+
     FNavLocation NextLocation;
     bool const bPointFound = NavSystem->GetRandomReachablePointInRadius(
-        Pawn->GetActorLocation(),
+        SearchAreaCenter,
         LocationSearchRadius,
         NextLocation
     );
     if (!bPointFound) {
+        UE_LOG(LogShooterNextLocationTask, Display, TEXT("Next location not found for %s"), *Pawn->GetName());
         return EBTNodeResult::Failed;
     }
 

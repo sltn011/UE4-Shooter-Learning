@@ -1,0 +1,49 @@
+// Shooter, All Rights Reserved
+
+
+#include "Components/ShooterAIPerceptionComponent.h"
+
+#include "AIController.h"
+#include "Components/ShooterHealthComponent.h"
+#include "ShooterUtils.h"
+#include "Perception/AISense_Sight.h"
+
+
+AActor *UShooterAIPerceptionComponent::GetClosestVisibleActor(
+) const
+{
+    TArray<AActor *> PerceivedActors;
+    GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), PerceivedActors);
+    if (PerceivedActors.Num() == 0) {
+        return nullptr;
+    }
+
+    AAIController const *Controller = Cast<AAIController>(GetOwner());
+    if (!Controller) {
+        return nullptr;
+    }
+
+    APawn const *Pawn = Controller->GetPawn();
+    if (!Pawn) {
+        return nullptr;
+    }
+
+    float ClosestDistanceSqr = MAX_FLT;
+    AActor *ClosestActor = nullptr;
+    for (AActor *PerceivedActor : PerceivedActors) {
+
+        UShooterHealthComponent *HealthComponent = ShooterUtils::GetPlayerComponentByClass<UShooterHealthComponent>(PerceivedActor);
+        if (!HealthComponent || HealthComponent->IsDead()) {
+            continue;
+        }
+
+        float DistSqr = FVector{ Pawn->GetActorLocation() - PerceivedActor->GetActorLocation() }.SizeSquared();
+
+        if (DistSqr < ClosestDistanceSqr) {
+            ClosestDistanceSqr = DistSqr;
+            ClosestActor = PerceivedActor;
+        }
+    }
+
+    return ClosestActor;
+}
