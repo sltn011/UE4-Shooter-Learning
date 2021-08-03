@@ -18,7 +18,7 @@ AShooterRifleWeapon::AShooterRifleWeapon(
 void AShooterRifleWeapon::StartShooting(
 )
 {
-	if (!GetWorld()) {
+	if (!GetWorld() || FMath::IsNearlyZero(ShotsPerMinute)) {
 		return;
 	}
 	InitMuzzleFX();
@@ -42,7 +42,7 @@ void AShooterRifleWeapon::BeginPlay(
 
 	check(WeaponFXComponent);
 
-	check(DamagePerShot > 0.0f);
+	check(DamagePerShot >= 0.0f);
 	check(ShotsPerMinute > 0.0f);
 	check(BulletSpreadDegrees >= 0.0f);
 }

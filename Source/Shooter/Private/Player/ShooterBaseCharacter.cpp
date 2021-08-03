@@ -43,42 +43,15 @@ AShooterBaseCharacter::AShooterBaseCharacter(
 	WeaponComponent = CreateDefaultSubobject<UShooterWeaponComponent>(TEXT("WeaponComponent"));
 }
 
-void AShooterBaseCharacter::BeginPlay(
-)
-{
-	Super::BeginPlay();
-
-	check(SpringArmComponent);
-	check(CameraComponent);
-	check(HealthComponent);
-	check(HealthTextComponent);
-	check(WeaponComponent);
-
-	check(LifeSpanAfterDeath >= 0.0f);
-
-	OnHealthChanged(HealthComponent->GetHealth(), HealthComponent->GetHealth());
-	HealthComponent->OnHealthChanged.AddUObject(this, &AShooterBaseCharacter::OnHealthChanged);
-	HealthComponent->OnDeath.AddUObject(this, &AShooterBaseCharacter::OnDeath);
-
-	LandedDelegate.AddDynamic(this, &AShooterBaseCharacter::OnGroundLanding);
-}
-
-void AShooterBaseCharacter::EndPlay(
-	EEndPlayReason::Type const EndPlayReason
-)
-{
-	Super::EndPlay(EndPlayReason);
-}
-
 void AShooterBaseCharacter::Tick(
 	float DeltaTime
 )
 {
-	Super::Tick(DeltaTime); 
+	Super::Tick(DeltaTime);
 }
 
 void AShooterBaseCharacter::SetupPlayerInputComponent(
-	UInputComponent* PlayerInputComponent
+	UInputComponent *PlayerInputComponent
 )
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -111,43 +84,13 @@ void AShooterBaseCharacter::SetupPlayerInputComponent(
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::ReloadWeapon);
 }
 
-bool AShooterBaseCharacter::IsRunning(
+bool AShooterBaseCharacter::IsDead(
 ) const
 {
-	return bIsRunning && bIsMovingForward && !GetVelocity().IsNearlyZero();
-}
-
-float AShooterBaseCharacter::MoveDirectionRadians(
-) const
-{
-	if (GetVelocity().IsZero()) {
-		return 0.0f;
+	if (!HealthComponent || HealthComponent->IsDead()) {
+		return true;
 	}
-
-	FVector const Forward = GetActorForwardVector();
-	FVector const VelocityNormal = GetVelocity().GetSafeNormal();
-
-	FVector const Orthogonal = FVector::CrossProduct(Forward, VelocityNormal);
-
-	float const DirectionSign = FMath::Sign(Orthogonal.Z);
-	float const RadiansBetween = FMath::Acos(FVector::DotProduct(Forward, VelocityNormal));
-
-	return Orthogonal.IsZero() ? RadiansBetween : DirectionSign * RadiansBetween;
-}
-
-void AShooterBaseCharacter::MoveForward(
-	float Scale
-)
-{
-	bIsMovingForward = Scale > 0.0f;
-	AddMovementInput(GetActorForwardVector(), Scale);
-}
-
-void AShooterBaseCharacter::MoveRight(
-	float Scale
-)
-{
-	AddMovementInput(GetActorRightVector(), Scale);
+	return false;
 }
 
 void AShooterBaseCharacter::StartRunning(
@@ -178,22 +121,60 @@ void AShooterBaseCharacter::StopShooting(
 	WeaponComponent->StopShooting();
 }
 
-void AShooterBaseCharacter::OnHealthChanged(
-	float NewHealth,
-	float HealthDelta
+bool AShooterBaseCharacter::IsRunning(
+) const
+{
+	return bIsRunning && bIsMovingForward && !GetVelocity().IsNearlyZero();
+}
+
+float AShooterBaseCharacter::MoveDirectionRadians(
+) const
+{
+	if (GetVelocity().IsZero()) {
+		return 0.0f;
+	}
+
+	FVector const Forward = GetActorForwardVector();
+	FVector const VelocityNormal = GetVelocity().GetSafeNormal();
+
+	FVector const Orthogonal = FVector::CrossProduct(Forward, VelocityNormal);
+
+	float const DirectionSign = FMath::Sign(Orthogonal.Z);
+	float const RadiansBetween = FMath::Acos(FVector::DotProduct(Forward, VelocityNormal));
+
+	return Orthogonal.IsZero() ? RadiansBetween : DirectionSign * RadiansBetween;
+}
+
+void AShooterBaseCharacter::BeginPlay(
 )
 {
-	if (HealthTextComponent) {
-		HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), NewHealth)));
-	}
+	Super::BeginPlay();
+
+	check(SpringArmComponent);
+	check(CameraComponent);
+	check(HealthComponent);
+	check(HealthTextComponent);
+	check(WeaponComponent);
+
+	check(LifeSpanAfterDeath >= 0.0f);
+
+	OnHealthChanged(HealthComponent->GetHealth(), HealthComponent->GetHealth());
+	HealthComponent->OnHealthChanged.AddUObject(this, &AShooterBaseCharacter::OnHealthChanged);
+	HealthComponent->OnDeath.AddUObject(this, &AShooterBaseCharacter::OnDeath);
+
+	LandedDelegate.AddDynamic(this, &AShooterBaseCharacter::OnGroundLanding);
+}
+
+void AShooterBaseCharacter::EndPlay(
+	EEndPlayReason::Type const EndPlayReason
+)
+{
+	Super::EndPlay(EndPlayReason);
 }
 
 void AShooterBaseCharacter::OnDeath(
 )
 {
-	//if (DeathAnimMontage) - Already exists in PlayAnimMontage
-	//PlayAnimMontage(DeathAnimMontage);
-	
 	if (Controller) {
 		Controller->ChangeState(NAME_Spectating);
 	}
@@ -217,6 +198,30 @@ void AShooterBaseCharacter::OnDeath(
 	SetLifeSpan(LifeSpanAfterDeath);
 }
 
+void AShooterBaseCharacter::MoveForward(
+	float Scale
+)
+{
+	bIsMovingForward = Scale > 0.0f;
+	AddMovementInput(GetActorForwardVector(), Scale);
+}
+
+void AShooterBaseCharacter::MoveRight(
+	float Scale
+)
+{
+	AddMovementInput(GetActorRightVector(), Scale);
+}
+
+void AShooterBaseCharacter::OnHealthChanged(
+	float NewHealth,
+	float HealthDelta
+)
+{
+	if (HealthTextComponent) {
+		HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), NewHealth)));
+	}
+}
 
 void AShooterBaseCharacter::OnGroundLanding(
 	FHitResult const &HitResult

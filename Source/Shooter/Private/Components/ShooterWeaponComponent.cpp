@@ -167,49 +167,34 @@ AShooterBaseWeapon *UShooterWeaponComponent::GetWeaponByClass(
 	return nullptr;
 }
 
-void UShooterWeaponComponent::SpawnWeapons(
-)
+bool UShooterWeaponComponent::CanShoot(
+) const
 {
-	UWorld *World = GetWorld();
-	if (!World) {
-		return;
-	}
-
-	ACharacter *Character = Cast<ACharacter>(GetOwner());
-	if (!Character) {
-		return;
-	}
-
-	USkeletalMeshComponent *SkeletalMesh = GetOwnerSkeletalMesh();
-	if (!SkeletalMesh) {
-		return;
-	}
-
-	for (auto &SingleWeaponData : WeaponData) {
-		AShooterBaseWeapon *Weapon = World->SpawnActor<AShooterBaseWeapon>(SingleWeaponData.WeaponClass);
-		if (!Weapon) {
-			UE_LOG(LogShooterWeaponComponent, Warning, TEXT("Couldn't spawn weapon %s for %s"), *SingleWeaponData.WeaponClass->GetName(), *Character->GetName());
-			continue;
-		}
-		Weapon->SetOwner(Character);
-		Weapons.Add(Weapon);
-		AttachWeaponToSocket(Weapon, SkeletalMesh, WeaponArmorySocketName);
-		Weapon->OnEmptyClip.AddUObject(this, &UShooterWeaponComponent::OnEmptyClip);
-	}
-
+	return CurrentWeapon && !bEquipAnimInProgress && !bReloadAnimInProgress;
 }
 
-void UShooterWeaponComponent::AttachWeaponToSocket(
-	AShooterBaseWeapon *Weapon,
-	USceneComponent *SceneComponent,
-	FName const &SocketName
-)
+bool UShooterWeaponComponent::IsClipEmpty(
+) const
 {
-	if (!Weapon || !SceneComponent) {
-		return;
-	}
-	FAttachmentTransformRules AttachmentRules{ EAttachmentRule::SnapToTarget, false };
-	Weapon->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
+	return CurrentWeapon && CurrentWeapon->IsClipEmpty();
+}
+
+bool UShooterWeaponComponent::IsAmmoEmpty(
+) const
+{
+	return CurrentWeapon && CurrentWeapon->IsAmmoEmpty();
+}
+
+bool UShooterWeaponComponent::CanEquip(
+) const
+{
+	return Weapons.Num() && !bEquipAnimInProgress; // Can change weapon even if reloading - this will cancel reload action
+}
+
+bool UShooterWeaponComponent::CanReload(
+) const
+{
+	return CurrentWeapon && CurrentWeapon->CanReload() && !bEquipAnimInProgress && !bReloadAnimInProgress;
 }
 
 void UShooterWeaponComponent::EquipWeapon(
@@ -252,6 +237,65 @@ void UShooterWeaponComponent::EquipWeapon(
 	bReloadAnimInProgress = false; // If reload animation was playing it will be cancelled - reset it's flag
 	bEquipAnimInProgress = true;
 	PlayAnimMontage(EquipAnimMontage);
+}
+
+void UShooterWeaponComponent::SpawnWeapons(
+)
+{
+	UWorld *World = GetWorld();
+	if (!World) {
+		return;
+	}
+
+	ACharacter *Character = Cast<ACharacter>(GetOwner());
+	if (!Character) {
+		return;
+	}
+
+	USkeletalMeshComponent *SkeletalMesh = GetOwnerSkeletalMesh();
+	if (!SkeletalMesh) {
+		return;
+	}
+
+	for (auto &SingleWeaponData : WeaponData) {
+		AShooterBaseWeapon *Weapon = World->SpawnActor<AShooterBaseWeapon>(SingleWeaponData.WeaponClass);
+		if (!Weapon) {
+			UE_LOG(LogShooterWeaponComponent, Warning, TEXT("Couldn't spawn weapon %s for %s"), *SingleWeaponData.WeaponClass->GetName(), *Character->GetName());
+			continue;
+		}
+		Weapon->SetOwner(Character);
+		Weapons.Add(Weapon);
+		AttachWeaponToSocket(Weapon, SkeletalMesh, WeaponArmorySocketName);
+		Weapon->OnEmptyClip.AddUObject(this, &UShooterWeaponComponent::OnEmptyClip);
+	}
+
+}
+
+void UShooterWeaponComponent::Reload(
+)
+{
+	if (!CanReload()) {
+		return;
+	}
+
+	CurrentWeapon->StopShooting();
+	//CurrentWeapon->Reload(); - Updating ammo data is done only after animation is finished
+
+	bReloadAnimInProgress = true;
+	PlayAnimMontage(CurrentReloadAnimMontage);
+}
+
+void UShooterWeaponComponent::AttachWeaponToSocket(
+	AShooterBaseWeapon *Weapon,
+	USceneComponent *SceneComponent,
+	FName const &SocketName
+)
+{
+	if (!Weapon || !SceneComponent) {
+		return;
+	}
+	FAttachmentTransformRules AttachmentRules{ EAttachmentRule::SnapToTarget, false };
+	Weapon->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
 }
 
 void UShooterWeaponComponent::PlayAnimMontage(
@@ -311,38 +355,6 @@ void UShooterWeaponComponent::InitReloadAnimation(
 		UE_LOG(LogShooterWeaponComponent, Error, TEXT("ReloadFinishedAnimNotify not set for one of ReloadMontages!"));
 		checkNoEntry();
 	}
-}
-
-bool UShooterWeaponComponent::CanShoot(
-) const
-{
-	return CurrentWeapon && !CurrentWeapon->IsClipEmpty() && !bEquipAnimInProgress && !bReloadAnimInProgress;
-}
-
-bool UShooterWeaponComponent::CanEquip(
-) const
-{
-	return Weapons.Num() && !bEquipAnimInProgress; // Can change weapon even if reloading - this will cancel reload action
-}
-
-bool UShooterWeaponComponent::CanReload(
-) const
-{
-	return CurrentWeapon && CurrentWeapon->CanReload() && !bEquipAnimInProgress && !bReloadAnimInProgress;
-}
-
-void UShooterWeaponComponent::Reload(
-)
-{
-	if (!CanReload()) {
-		return;
-	}
-
-	CurrentWeapon->StopShooting();
-	//CurrentWeapon->Reload(); - Updating ammo data is done only after animation is finished
-
-	bReloadAnimInProgress = true;
-	PlayAnimMontage(CurrentReloadAnimMontage);
 }
 
 int32 UShooterWeaponComponent::CalculateAmmoCanBeAdded(

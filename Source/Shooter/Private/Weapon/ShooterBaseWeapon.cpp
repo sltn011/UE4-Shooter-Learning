@@ -164,12 +164,24 @@ bool AShooterBaseWeapon::GetCameraViewPoint(
 	FRotator &Rotation
 ) const
 {
-	APlayerController *Controller = GetPlayerController();
-	if (!Controller) {
+	ACharacter *ShooterCharacter = Cast<ACharacter>(GetOwner());
+	if (!ShooterCharacter) {
 		return false;
 	}
 
-	Controller->GetPlayerViewPoint(Location, Rotation);
+	if (ShooterCharacter->IsPlayerControlled()) {
+		APlayerController *Controller = GetPlayerController();
+		if (!Controller) {
+			return false;
+		}
+
+		Controller->GetPlayerViewPoint(Location, Rotation);
+	}
+	else {
+		Location = GetMuzzleWorldLocation();
+		Rotation = WeaponMesh->GetSocketRotation(MuzzleSocketName);
+	}
+
 	return true;
 }
 

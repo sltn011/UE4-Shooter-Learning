@@ -5,12 +5,13 @@
 
 #include "AI/ShooterAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
+#include "Components/ShooterAIWeaponComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AShooterAICharacter::AShooterAICharacter(
 	FObjectInitializer const &ObjInit
 )
-	: Super{ObjInit}
+	: Super{ObjInit.SetDefaultSubobjectClass<UShooterAIWeaponComponent>(TEXT("WeaponComponent"))}
 {
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = AShooterAIController::StaticClass();
@@ -22,4 +23,15 @@ AShooterAICharacter::AShooterAICharacter(
 		MovementComponent->RotationRate = FRotator{ 0.0f, 200.0f, 0.0f };
 		MovementComponent->bUseControllerDesiredRotation = true;
 	}
+}
+
+void AShooterAICharacter::OnDeath(
+)
+{
+	AAIController *OwnerController = Cast<AAIController>(GetController());
+	if (OwnerController) {
+		UBrainComponent *Brain = OwnerController->GetBrainComponent();
+		Brain->Cleanup();
+	}
+	Super::OnDeath();
 }

@@ -28,6 +28,42 @@ public:
 		FObjectInitializer const &ObjInitializer
 	);
 
+	virtual void Tick(
+		float DeltaTime
+	) override;
+
+	virtual void SetupPlayerInputComponent(
+		class UInputComponent *PlayerInputComponent
+	) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	bool IsDead(
+	) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void StartRunning(
+	);
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void StopRunning(
+	);
+
+	UFUNCTION(BlueprintCallable, Category = "Shooting")
+	void StartShooting(
+	);
+
+	UFUNCTION(BlueprintCallable, Category = "Shooting")
+	void StopShooting(
+	);
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	bool IsRunning(
+	) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	float MoveDirectionRadians(
+	) const;
+
 protected:
 
 	virtual void BeginPlay(
@@ -36,6 +72,9 @@ protected:
 	virtual void EndPlay(
 		EEndPlayReason::Type const EndPlayReason
 	) override;
+
+	virtual void OnDeath(
+	);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	USpringArmComponent *SpringArmComponent;
@@ -61,24 +100,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Lifespan", meta = (ClampMin = 0.0f))
 	float LifeSpanAfterDeath = 5.0f;
 
-public:	
-
-	virtual void Tick(
-		float DeltaTime
-	) override;
-
-	virtual void SetupPlayerInputComponent(
-		class UInputComponent *PlayerInputComponent
-	) override;
-
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	bool IsRunning(
-	) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	float MoveDirectionRadians(
-	) const;
-
 private:
 
 	void MoveForward(
@@ -89,27 +110,9 @@ private:
 		float Scale
 	);
 
-
-	void StartRunning(
-	);
-
-	void StopRunning(
-	);
-
-
-	void StartShooting(
-	);
-
-	void StopShooting(
-	);
-
-
 	void OnHealthChanged(
 		float NewHealth,
 		float HealthDelta
-	);
-	
-	void OnDeath(
 	);
 
 	UFUNCTION()
