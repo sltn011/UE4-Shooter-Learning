@@ -90,6 +90,62 @@ bool UShooterWeaponComponent::GetCurrentWeaponAmmoData(
 	return true;
 }
 
+bool UShooterWeaponComponent::GetCurrentWeaponDefaultAmmoData(
+	FAmmoData &AmmoData
+) const
+{
+	if (!CurrentWeapon) {
+		return false;
+	}
+
+	AmmoData = CurrentWeapon->GetDefaultAmmoData();
+	return true;
+}
+
+bool UShooterWeaponComponent::GetWeaponCurrentAmmoDataByClass(
+	TSubclassOf<AShooterBaseWeapon> const &WeaponClass,
+	FAmmoData &AmmoData
+) const
+{
+	AShooterBaseWeapon *RequestedWeapon = GetWeaponByClass(WeaponClass);
+	if (!RequestedWeapon) {
+		return false;
+	}
+
+	AmmoData = RequestedWeapon->GetCurrentAmmoData();
+	return true;
+}
+
+bool UShooterWeaponComponent::GetWeaponDefaultAmmoDataByClass(
+	TSubclassOf<AShooterBaseWeapon> const &WeaponClass,
+	FAmmoData &AmmoData
+) const
+{
+	AShooterBaseWeapon *RequestedWeapon = GetWeaponByClass(WeaponClass);
+	if (!RequestedWeapon) {
+		return false;
+	}
+
+	AmmoData = RequestedWeapon->GetDefaultAmmoData();
+	return true;
+}
+
+bool UShooterWeaponComponent::GetWeaponFullAmmoDataByClass(
+	TSubclassOf<AShooterBaseWeapon> const &WeaponClass,
+	FAmmoData &DefaultAmmoData,
+	FAmmoData &CurrentAmmoData
+) const
+{
+	AShooterBaseWeapon *RequestedWeapon = GetWeaponByClass(WeaponClass);
+	if (!RequestedWeapon) {
+		return false;
+	}
+
+	DefaultAmmoData = RequestedWeapon->GetDefaultAmmoData();
+	CurrentAmmoData = RequestedWeapon->GetCurrentAmmoData();
+	return true;
+}
+
 int32 UShooterWeaponComponent::AddAmmoToWeapon(
 	EAmmoRestoreType AmmoRestoreType,
 	TSubclassOf<AShooterBaseWeapon> RestockedWeaponClass,
@@ -159,6 +215,10 @@ AShooterBaseWeapon *UShooterWeaponComponent::GetWeaponByClass(
 	TSubclassOf<AShooterBaseWeapon> WeaponClass
 ) const
 {
+	if (!WeaponClass) {
+		return nullptr;
+	}
+
 	for (AShooterBaseWeapon *Weapon : Weapons) {
 		if (Weapon->IsA(WeaponClass)) {
 			return Weapon;
@@ -376,7 +436,7 @@ int32 UShooterWeaponComponent::CalculateAmmoCanBeAdded(
 	}
 
 	int32 MaxBullets = DefaultAmmoData.BulletsInClip + DefaultAmmoData.BulletsInClip * DefaultAmmoData.Clips;
-	int32 CurrentBullets = CurrentAmmoData.BulletsInClip + CurrentAmmoData.SpareBullets;
+	int32 CurrentBullets = CurrentAmmoData.BulletsInClip + CurrentAmmoData.SpareAmmo;
 	int32 AmmoTriedToAdd = 0;
 
 	switch (AmmoRestoreType) {

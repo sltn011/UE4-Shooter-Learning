@@ -5,6 +5,7 @@
 
 #include "Components/ShooterWeaponComponent.h"
 #include "Player/ShooterBaseCharacter.h"
+#include "ShooterUtils.h"
 #include "Weapon/ShooterBaseWeapon.h"
 
 void AShooterAmmoPickup::BeginPlay(
@@ -13,6 +14,38 @@ void AShooterAmmoPickup::BeginPlay(
     Super::BeginPlay();
 
     check(RestockedWeaponClass);
+}
+
+bool AShooterAmmoPickup::IsPickableCondition(
+    AActor *PickerActor
+)
+{
+    bool ParentValue = Super::IsPickableCondition(PickerActor);
+
+    UShooterWeaponComponent *WeaponComponent = ShooterUtils::GetPlayerComponentByClass<UShooterWeaponComponent>(PickerActor);
+    if (!WeaponComponent) {
+        return false;
+    }
+
+    FAmmoData DefaultAmmo, CurrentAmmo;
+    if (!WeaponComponent->GetWeaponFullAmmoDataByClass(RestockedWeaponClass, DefaultAmmo, CurrentAmmo)) {
+        return false;
+    }
+
+    if (CurrentAmmo.bInfiniteAmmo) {
+        return false;
+    }
+
+    int32 DefaultBullets = DefaultAmmo.BulletsInClip * DefaultAmmo.Clips + DefaultAmmo.BulletsInClip;
+    int32 CurrentBullets = CurrentAmmo.SpareAmmo + CurrentAmmo.BulletsInClip;
+
+    float AmmoPercent = static_cast<float>(CurrentBullets) / static_cast<float>(DefaultBullets);
+
+    if (FMath::IsNearlyEqual(AmmoPercent, 1.0f)) {
+        return false;
+    }
+
+    return ParentValue;
 }
 
 void AShooterAmmoPickup::PickupEffect(
@@ -24,12 +57,12 @@ void AShooterAmmoPickup::PickupEffect(
         return;
     }
 
-    UShooterWeaponComponent *PickerWeaponComponent = Cast<UShooterWeaponComponent>(PickerCharacter->GetComponentByClass(UShooterWeaponComponent::StaticClass()));
-    if (!PickerWeaponComponent) {
+    UShooterWeaponComponent *WeaponComponent = ShooterUtils::GetPlayerComponentByClass<UShooterWeaponComponent>(PickerCharacter);
+    if (!WeaponComponent) {
         return;
     }
 
-    PickerWeaponComponent->AddAmmoToWeapon(AmmoRestoreType, RestockedWeaponClass, ClipsRestored, BulletsRestored);
+    WeaponComponent->AddAmmoToWeapon(AmmoRestoreType, RestockedWeaponClass, ClipsRestored, BulletsRestored);
 }
 
 #if WITH_EDITOR

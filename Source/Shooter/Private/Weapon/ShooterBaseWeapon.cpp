@@ -37,7 +37,7 @@ bool AShooterBaseWeapon::IsAmmoEmpty(
 ) const
 {
 	// Only true when ammo is not infinite and current clip is empty and no more spare bullets left
-	return !CurrentAmmo.bInfiniteAmmo && IsClipEmpty() && CurrentAmmo.SpareBullets == 0;
+	return !CurrentAmmo.bInfiniteAmmo && IsClipEmpty() && CurrentAmmo.SpareAmmo == 0;
 }
 
 bool AShooterBaseWeapon::IsClipEmpty(
@@ -49,7 +49,7 @@ bool AShooterBaseWeapon::IsClipEmpty(
 bool AShooterBaseWeapon::CanReload(
 ) const
 {
-	return CurrentAmmo.BulletsInClip < DefaultAmmo.BulletsInClip && (CurrentAmmo.SpareBullets > 0 || CurrentAmmo.bInfiniteAmmo);
+	return CurrentAmmo.BulletsInClip < DefaultAmmo.BulletsInClip && (CurrentAmmo.SpareAmmo > 0 || CurrentAmmo.bInfiniteAmmo);
 }
 
 void AShooterBaseWeapon::Reload(
@@ -61,10 +61,10 @@ void AShooterBaseWeapon::Reload(
 	}
 
 	int32 BulletsMissing = DefaultAmmo.BulletsInClip - CurrentAmmo.BulletsInClip;
-	int32 BulletsCanBeAdded = CurrentAmmo.bInfiniteAmmo ? BulletsMissing : (BulletsMissing > CurrentAmmo.SpareBullets ? CurrentAmmo.SpareBullets : BulletsMissing);
+	int32 BulletsCanBeAdded = CurrentAmmo.bInfiniteAmmo ? BulletsMissing : (BulletsMissing > CurrentAmmo.SpareAmmo ? CurrentAmmo.SpareAmmo : BulletsMissing);
 
 	if (!CurrentAmmo.bInfiniteAmmo) {
-		CurrentAmmo.SpareBullets -= BulletsCanBeAdded;
+		CurrentAmmo.SpareAmmo -= BulletsCanBeAdded;
 	}
 	CurrentAmmo.BulletsInClip += BulletsCanBeAdded;
 }
@@ -77,7 +77,7 @@ void AShooterBaseWeapon::AddAmmo(
 		return;
 	}
 
-	CurrentAmmo.SpareBullets += AmmoToAdd;
+	CurrentAmmo.SpareAmmo += AmmoToAdd;
 }
 
 FWeaponUIData AShooterBaseWeapon::GetUIData(
@@ -111,7 +111,7 @@ void AShooterBaseWeapon::BeginPlay(
 	check(DefaultAmmo.Clips >= 0);
 
 	CurrentAmmo = DefaultAmmo;
-	CurrentAmmo.SpareBullets = CurrentAmmo.BulletsInClip * CurrentAmmo.Clips;
+	CurrentAmmo.SpareAmmo = CurrentAmmo.BulletsInClip * CurrentAmmo.Clips;
 }
 
 void AShooterBaseWeapon::MakeShot(
@@ -280,10 +280,10 @@ void AShooterBaseWeapon::LogAmmo(
 ) const
 {
 	FString AmmoInfo = FString::Printf(
-		TEXT("Weapon: %s, Bullets: %d, SpareBullets: %s, IsClipEmpty: %d, IsAmmoEmpty: %d"), 
+		TEXT("Weapon: %s, Bullets: %d, SpareAmmo: %s, IsClipEmpty: %d, IsAmmoEmpty: %d"), 
 		*GetName(),
 		CurrentAmmo.BulletsInClip,
-		CurrentAmmo.bInfiniteAmmo ? TEXT("Infinite") : *(FString::FromInt(CurrentAmmo.SpareBullets)),
+		CurrentAmmo.bInfiniteAmmo ? TEXT("Infinite") : *(FString::FromInt(CurrentAmmo.SpareAmmo)),
 		IsClipEmpty(),
 		IsAmmoEmpty()
 	);

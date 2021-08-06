@@ -35,7 +35,8 @@ public class Shooter : ModuleRules
 			"Shooter/Public/AI",
 			"Shooter/Public/AI/Tasks",
 			"Shooter/Public/AI/Services",
-			"Shooter/Public/AI/Contexts"
+			"Shooter/Public/AI/Contexts",
+			"Shooter/Public/AI/Decorators"
 		});
 
 		// Uncomment if you are using Slate UI

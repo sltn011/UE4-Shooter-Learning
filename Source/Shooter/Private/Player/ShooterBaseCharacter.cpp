@@ -195,6 +195,10 @@ void AShooterBaseCharacter::OnDeath(
 		PlayerMesh->SetSimulatePhysics(true);
 	}
 
+	if (HealthTextComponent) {
+		HealthTextComponent->SetText(FText::GetEmpty());
+	}
+
 	SetLifeSpan(LifeSpanAfterDeath);
 }
 

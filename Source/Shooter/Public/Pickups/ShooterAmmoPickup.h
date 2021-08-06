@@ -20,6 +20,10 @@ protected:
 	virtual void BeginPlay(
 	) override;
 
+	virtual bool IsPickableCondition(
+		AActor *PickerActor
+	) override;
+
 	virtual void PickupEffect(
 		APawn *PickerPawn
 	) override;

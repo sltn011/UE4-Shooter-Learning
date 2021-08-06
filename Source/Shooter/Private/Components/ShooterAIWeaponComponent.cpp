@@ -24,7 +24,6 @@ void UShooterAIWeaponComponent::StartShooting(
 void UShooterAIWeaponComponent::EquipNextWeapon(
 )
 {
-	UE_LOG(LogTemp, Display, TEXT("AI Weapon change!"));
 	if (!CanEquip()) {
 		return;
 	}

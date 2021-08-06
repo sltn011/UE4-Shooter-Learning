@@ -38,7 +38,7 @@ void AShooterBaseProjectile::BeginPlay(
 	check(WeaponFXComponent);
 
 	check(TimeToLive > 0.0f);
-	check(DamageAmount > 0.0f);
+	check(DamageAmount >= 0.0f);
 	check(AreaRadius > 0.0f);
 
 	CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);

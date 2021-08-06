@@ -117,7 +117,7 @@ public:
 	bool bInfiniteAmmo;
 
 	UPROPERTY(BlueprintReadOnly)
-	int32 SpareBullets = 0;
+	int32 SpareAmmo = 0;
 
 };
 

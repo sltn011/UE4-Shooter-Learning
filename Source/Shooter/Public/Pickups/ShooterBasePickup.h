@@ -24,6 +24,9 @@ public:
 		float DeltaTime
 	) override;
 
+	bool IsVisible(
+	) const;
+
 protected:
 
 	virtual void BeginPlay(
@@ -32,6 +35,10 @@ protected:
 	virtual void NotifyActorBeginOverlap(
 		AActor *PickerActor
 	) override;
+
+	virtual bool IsPickableCondition(
+		AActor *PickerActor
+	);
 
 	virtual void PickupEffect(
 		APawn *PickerPawn
@@ -77,4 +84,5 @@ private:
 
 	float PickupYawRotation = 0.0f;
 
+	FTimerHandle ReappearTimerHandle;
 };

@@ -4,6 +4,7 @@
 #include "Pickups/ShooterBasePickup.h"
 
 #include "Components/SphereComponent.h"
+#include "Player/ShooterBaseCharacter.h"
 #include "TimerManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterBasePickup, All, All)
@@ -35,6 +36,12 @@ void AShooterBasePickup::Tick(
 	}
 }
 
+bool AShooterBasePickup::IsVisible(
+) const
+{
+	return !GetWorldTimerManager().IsTimerActive(ReappearTimerHandle);
+}
+
 void AShooterBasePickup::BeginPlay(
 )
 {
@@ -60,6 +67,10 @@ void AShooterBasePickup::NotifyActorBeginOverlap(
 {
 	Super::NotifyActorBeginOverlap(PickerActor);
 
+	if (!IsPickableCondition(PickerActor)) {
+		return;
+	}
+
 	APawn *PickerPawn = Cast<APawn>(PickerActor);
 	if (!PickerPawn) {
 		return;
@@ -69,6 +80,20 @@ void AShooterBasePickup::NotifyActorBeginOverlap(
 	PickupEffect(PickerPawn);
 
 	OnBeingPicked();
+}
+
+bool AShooterBasePickup::IsPickableCondition(
+	AActor *PickerActor
+)
+{
+	AShooterBaseCharacter *PickerShooterCharacter = Cast<AShooterBaseCharacter>(PickerActor);
+	if (PickerShooterCharacter) {
+		if (PickerShooterCharacter->IsDead()) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void AShooterBasePickup::PickupEffect(
@@ -95,7 +120,6 @@ void AShooterBasePickup::DisappearFromWorld(
 
 	PickupRoot->SetVisibility(false, true);
 
-	FTimerHandle ReappearTimerHandle;
 	GetWorldTimerManager().SetTimer(ReappearTimerHandle, this, &AShooterBasePickup::ReappearInWorld, RespawnTime, false);
 }
 

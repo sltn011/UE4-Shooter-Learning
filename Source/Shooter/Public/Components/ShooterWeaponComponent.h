@@ -42,6 +42,26 @@ public:
 		FAmmoData &AmmoData
 	) const;
 
+	bool GetCurrentWeaponDefaultAmmoData(
+		FAmmoData &AmmoData
+	) const;
+
+	bool GetWeaponCurrentAmmoDataByClass(
+		TSubclassOf<AShooterBaseWeapon> const &WeaponClass,
+		FAmmoData &AmmoData
+	) const;
+
+	bool GetWeaponDefaultAmmoDataByClass(
+		TSubclassOf<AShooterBaseWeapon> const &WeaponClass,
+		FAmmoData &AmmoData
+	) const;
+
+	bool GetWeaponFullAmmoDataByClass(
+		TSubclassOf<AShooterBaseWeapon> const &WeaponClass,
+		FAmmoData &DefaultAmmoData,
+		FAmmoData &CurrentAmmoData
+	) const;
+
 	int32 AddAmmoToWeapon(
 		EAmmoRestoreType AmmoRestoreType,
 		TSubclassOf<AShooterBaseWeapon> RestockedWeaponClass,

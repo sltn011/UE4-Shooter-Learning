@@ -85,7 +85,7 @@ bool UShooterPlayerHUDWidget::GetCurrentWeaponAmmoText(
     }
 
     FString BulletsString = FString::FromInt(AmmoData.BulletsInClip);
-    FString SpareBulletsString = AmmoData.bInfiniteAmmo ? TEXT("\u221E") : FString::FromInt(AmmoData.SpareBullets);
+    FString SpareBulletsString = AmmoData.bInfiniteAmmo ? TEXT("\u221E") : FString::FromInt(AmmoData.SpareAmmo);
     FString AmmoDataString = FString::Printf(TEXT("%s / %s"), *BulletsString, *SpareBulletsString);
     AmmoText = FText::FromString(AmmoDataString);
     return true;
