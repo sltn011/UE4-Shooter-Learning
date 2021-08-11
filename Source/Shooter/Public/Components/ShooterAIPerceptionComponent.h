@@ -15,7 +15,7 @@ class SHOOTER_API UShooterAIPerceptionComponent : public UAIPerceptionComponent
 
 public:
 
-	AActor *GetClosestVisibleActor(
+	AActor *GetClosestVisibleEnemyActor(
 	) const;
 	
 };

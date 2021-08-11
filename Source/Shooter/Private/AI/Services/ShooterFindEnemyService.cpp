@@ -26,7 +26,7 @@ void UShooterFindEnemyService::TickNode(
         if (Controller) {
             UShooterAIPerceptionComponent *PerceptionComponent = ShooterUtils::GetPlayerComponentByClass<UShooterAIPerceptionComponent>(Controller);
             if (PerceptionComponent) {
-                Blackboard->SetValueAsObject(EnemyActorKey.SelectedKeyName, PerceptionComponent->GetClosestVisibleActor());
+                Blackboard->SetValueAsObject(EnemyActorKey.SelectedKeyName, PerceptionComponent->GetClosestVisibleEnemyActor());
             }
         }
     }

@@ -63,7 +63,7 @@ protected:
 	virtual void MakeShot(
 	);
 
-	APlayerController *GetPlayerController(
+	AController *GetPlayerController(
 	) const;
 
 	bool GetCameraViewPoint(

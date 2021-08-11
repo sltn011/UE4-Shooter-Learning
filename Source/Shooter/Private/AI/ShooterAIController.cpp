@@ -13,6 +13,8 @@ AShooterAIController::AShooterAIController(
 {
 	AIPerceptionComponent = CreateDefaultSubobject<UShooterAIPerceptionComponent>(TEXT("PerceptionComponent"));
 	SetPerceptionComponent(*AIPerceptionComponent);
+
+	bWantsPlayerState = true;
 }
 
 void AShooterAIController::OnPossess(

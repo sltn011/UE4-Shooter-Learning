@@ -145,6 +145,23 @@ float AShooterBaseCharacter::MoveDirectionRadians(
 	return Orthogonal.IsZero() ? RadiansBetween : DirectionSign * RadiansBetween;
 }
 
+void AShooterBaseCharacter::SetPlayerColor(
+	FLinearColor const &Color
+)
+{
+	USkeletalMeshComponent *PlayerMesh = GetMesh();
+	if (!PlayerMesh) {
+		return;
+	}
+
+	UMaterialInstanceDynamic *MaterialInstance = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);
+	if (!MaterialInstance) {
+		return;
+	}
+
+	MaterialInstance->SetVectorParameterValue(MaterialColorName, Color);
+}
+
 void AShooterBaseCharacter::BeginPlay(
 )
 {

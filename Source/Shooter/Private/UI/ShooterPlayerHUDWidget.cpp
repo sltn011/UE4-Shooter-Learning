@@ -5,6 +5,7 @@
 
 #include "Components/ShooterHealthComponent.h"
 #include "Components/ShooterWeaponComponent.h"
+#include "ShooterGameModeBase.h"
 #include "ShooterUtils.h"
 
 bool UShooterPlayerHUDWidget::Initialize(

@@ -64,6 +64,10 @@ public:
 	float MoveDirectionRadians(
 	) const;
 
+	void SetPlayerColor(
+		FLinearColor const &Color
+	);
+
 protected:
 
 	virtual void BeginPlay(
@@ -99,6 +103,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Lifespan", meta = (ClampMin = 0.0f))
 	float LifeSpanAfterDeath = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Material")
+	FName MaterialColorName = "Paint Color";
 
 private:
 

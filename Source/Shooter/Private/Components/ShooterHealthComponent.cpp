@@ -8,6 +8,8 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/Pawn.h"
+#include "ShooterGameModeBase.h"
+#include "ShooterUtils.h"
 #include "TimerManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterHealthComponent, All, All);
@@ -89,6 +91,15 @@ void UShooterHealthComponent::OnTakeAnyDamage(
 		return;
 	}
 
+	APawn *DamagedPawn = Cast<APawn>(DamagedActor);
+	if (!DamagedPawn) {
+		return;
+	}
+
+	if (!ShooterUtils::AreEnemies(DamagedPawn->GetController(), InstigatedBy)) {
+		return;
+	}
+
 	SetHealth(Health - Damage);
 
 	PlayCameraShake(OnDamageCameraShake);
@@ -96,6 +107,7 @@ void UShooterHealthComponent::OnTakeAnyDamage(
 	GetWorld()->GetTimerManager().ClearTimer(AutoHealTimerHandle);
 
 	if (IsDead()) {
+		RegisterKill(InstigatedBy);
 		OnDeath.Broadcast();
 	}
 	else if (bAutoHeal) {
@@ -151,4 +163,28 @@ void UShooterHealthComponent::PlayCameraShake(
 	}
 
 	OwnerController->PlayerCameraManager->StartCameraShake(CameraShake);
+}
+
+void UShooterHealthComponent::RegisterKill(
+	AController *Killer
+)
+{
+	UWorld *World = GetWorld();
+	if (!World) {
+		return;
+	}
+
+	AShooterGameModeBase *GameMode = World->GetAuthGameMode<AShooterGameModeBase>();
+	if (!GameMode) {
+		return;
+	}
+
+	APawn *OwnerPawn = Cast<APawn>(GetOwner());
+	if (!OwnerPawn) {
+		return;
+	}
+
+	AController *Victim = OwnerPawn->GetController();
+
+	GameMode->RegisterKill(Killer, Victim);
 }

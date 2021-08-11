@@ -9,7 +9,7 @@
 #include "Perception/AISense_Sight.h"
 
 
-AActor *UShooterAIPerceptionComponent::GetClosestVisibleActor(
+AActor *UShooterAIPerceptionComponent::GetClosestVisibleEnemyActor(
 ) const
 {
     TArray<AActor *> PerceivedActors;
@@ -34,6 +34,15 @@ AActor *UShooterAIPerceptionComponent::GetClosestVisibleActor(
 
         UShooterHealthComponent *HealthComponent = ShooterUtils::GetPlayerComponentByClass<UShooterHealthComponent>(PerceivedActor);
         if (!HealthComponent || HealthComponent->IsDead()) {
+            continue;
+        }
+
+        APawn *PerceivedPawn = Cast<APawn>(PerceivedActor);
+        if (!PerceivedPawn) {
+            continue;
+        }
+
+        if (!ShooterUtils::AreEnemies(Pawn->GetController(), PerceivedPawn->GetController())) {
             continue;
         }
 

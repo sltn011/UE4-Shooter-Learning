@@ -84,6 +84,10 @@ private:
 		TSubclassOf<UCameraShakeBase> CameraShake
 	);
 
+	void RegisterKill(
+		AController *Killer
+	);
+
 	float Health = 0.0f;
 
 	FTimerHandle AutoHealTimerHandle;

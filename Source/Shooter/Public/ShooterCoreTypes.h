@@ -7,7 +7,38 @@
 /*
  * ANIMATIONS
  */
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnNotified, USkeletalMeshComponent *);
+
+
+
+/*
+ * Game
+ */
+
+USTRUCT(BlueprintType)
+struct FGameData {
+
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = 1, ClampMax = 100))
+	int32 NumberOfPlayers = 2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = 1, ClampMax = 100))
+	int32 NumberOfRounds = 2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = 1, ClampMax = 999))
+	int32 RoundTimeInSeconds = 30;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Teams")
+	FLinearColor DefaultTeamColor = FLinearColor::White;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Teams")
+	TArray<FLinearColor> TeamColors;
+
+};
 
 
 /*

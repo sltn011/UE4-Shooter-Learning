@@ -148,7 +148,7 @@ void AShooterBaseWeapon::MakeShot(
 	}
 }
 
-APlayerController *AShooterBaseWeapon::GetPlayerController(
+AController *AShooterBaseWeapon::GetPlayerController(
 ) const
 {
 	ACharacter const *Player = Cast<ACharacter>(GetOwner());
@@ -156,7 +156,7 @@ APlayerController *AShooterBaseWeapon::GetPlayerController(
 		return nullptr;
 	}
 
-	return Player->GetController<APlayerController>();
+	return Player->GetController<AController>();
 }
 
 bool AShooterBaseWeapon::GetCameraViewPoint(
@@ -170,7 +170,7 @@ bool AShooterBaseWeapon::GetCameraViewPoint(
 	}
 
 	if (ShooterCharacter->IsPlayerControlled()) {
-		APlayerController *Controller = GetPlayerController();
+		APlayerController *Controller = Cast<APlayerController>(GetPlayerController());
 		if (!Controller) {
 			return false;
 		}
