@@ -24,7 +24,7 @@ public:
 	) override;
 
 	virtual UClass *GetDefaultPawnClassForController_Implementation(
-		AController *InController
+		AController *Controller
 	) override;
 
 	void RegisterKill(
@@ -47,6 +47,10 @@ public:
 	FGameData GetGameData(
 	) const;
 
+	void RespawnImmediate(
+		AController *Controller
+	);
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
@@ -57,6 +61,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
 	TSubclassOf<APawn> AIPawnClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
+	bool RespawningEnabled = true;
 
 private:
 
@@ -86,6 +93,13 @@ private:
 
 	void SetPlayerColorFromState(
 		AController *Controller
+	);
+
+	void RespawnAfterDelay(
+		AController *Controller
+	);
+
+	void GameOver(
 	);
 
 	int32 CurrentRound = 1;

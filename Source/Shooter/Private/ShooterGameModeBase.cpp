@@ -4,9 +4,13 @@
 #include "ShooterGameModeBase.h"
 
 #include "AIController.h"
+#include "BrainComponent.h"
+#include "Components/ShooterRespawnComponent.h"
+#include "EngineUtils.h"
 #include "Player/ShooterBaseCharacter.h"
 #include "Player/ShooterPlayerController.h"
 #include "Player/ShooterPlayerState.h"
+#include "ShooterUtils.h"
 #include "UI/ShooterGameHUD.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterGameModeBase, All, All);
@@ -33,14 +37,14 @@ void AShooterGameModeBase::StartPlay(
 }
 
 UClass *AShooterGameModeBase::GetDefaultPawnClassForController_Implementation(
-    AController *InController
+    AController *Controller
 )
 {
-    if (InController && InController->IsA<AAIController>()) {
+    if (Controller && Controller->IsA<AAIController>()) {
         return AIPawnClass;
     }
 
-    return Super::GetDefaultPawnClassForController_Implementation(InController);
+    return Super::GetDefaultPawnClassForController_Implementation(Controller);
 }
 
 void AShooterGameModeBase::RegisterKill(
@@ -61,6 +65,10 @@ void AShooterGameModeBase::RegisterKill(
 
     KillerState->AddKill();
     VictimState->AddDeath();
+
+    if (RespawningEnabled) {
+        RespawnAfterDelay(Victim);
+    }
 }
 
 void AShooterGameModeBase::LogPlayersStatistics(
@@ -111,6 +119,17 @@ FGameData AShooterGameModeBase::GetGameData(
     return GameData;
 }
 
+void AShooterGameModeBase::RespawnImmediate(
+    AController *Controller
+)
+{
+    if (!Controller) {
+        return;
+    }
+
+    ResetPlayer(Controller);
+}
+
 void AShooterGameModeBase::SpawnBots(
 )
 {
@@ -119,7 +138,7 @@ void AShooterGameModeBase::SpawnBots(
         return;
     }
 
-    // One player is always player
+    // One player is always not bot
     for (int32 i = 0; i < GameData.NumberOfPlayers - 1; ++i) {
 
         FActorSpawnParameters SpawnParameters;
@@ -153,8 +172,7 @@ void AShooterGameModeBase::UpdateGameTimer(
         }
         else {
             --CurrentRound; // Dec by 1 to not have round number bigger than max rounds on screen
-            UE_LOG(LogShooterGameModeBase, Display, TEXT("Game over!"), CurrentRound);
-            LogPlayersStatistics();
+            GameOver();
         }
     }
 }
@@ -251,4 +269,48 @@ void AShooterGameModeBase::SetPlayerColorFromState(
     }
 
     Character->SetPlayerColor(PlayerState->TeamColor);
+}
+
+void AShooterGameModeBase::RespawnAfterDelay(
+    AController *Controller
+)
+{
+    if (RoundCountdown <= GameData.RespawnTimeInSeconds) {
+        return;
+    }
+
+    UShooterRespawnComponent *RespawnComponent = ShooterUtils::GetPlayerComponentByClass<UShooterRespawnComponent>(Controller);
+    if (!RespawnComponent) {
+        return;
+    }
+
+    RespawnComponent->RespawnRequest(GameData.RespawnTimeInSeconds);
+}
+
+void AShooterGameModeBase::GameOver(
+)
+{
+    UE_LOG(LogShooterGameModeBase, Display, TEXT("Game over!"), CurrentRound);
+    LogPlayersStatistics();
+
+    for (AShooterBaseCharacter *Character : TActorRange<AShooterBaseCharacter>(GetWorld())) {
+        if (Character) {
+
+            AController *CharacterController = Character->GetController<AController>();
+
+            Character->TurnOff();
+            Character->StopShooting();
+
+            AAIController *AIController = Cast<AAIController>(CharacterController);
+            if (AIController) {
+                UBrainComponent *Brain = AIController->GetBrainComponent();
+                if (Brain) {
+                    Brain->Cleanup();
+                }
+            }
+            else {
+                Character->DisableInput(Cast<APlayerController>(CharacterController));
+            }
+        }
+    }
 }

@@ -31,7 +31,9 @@ void AShooterAICharacter::OnDeath(
 	AAIController *OwnerController = Cast<AAIController>(GetController());
 	if (OwnerController) {
 		UBrainComponent *Brain = OwnerController->GetBrainComponent();
-		Brain->Cleanup();
+		if (Brain) {
+			Brain->Cleanup();
+		}
 	}
 	Super::OnDeath();
 }

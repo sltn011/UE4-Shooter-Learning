@@ -32,12 +32,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = 1, ClampMax = 999))
 	int32 RoundTimeInSeconds = 30;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = 0, ClampMax = 999))
+	int32 RespawnTimeInSeconds = 5;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Teams")
 	FLinearColor DefaultTeamColor = FLinearColor::White;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Teams")
 	TArray<FLinearColor> TeamColors;
-
 };
 
 
