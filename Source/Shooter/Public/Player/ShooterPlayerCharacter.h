@@ -7,8 +7,9 @@
 #include "ShooterPlayerCharacter.generated.h"
 
 
-class USpringArmComponent;
 class UCameraComponent;
+class USphereComponent;
+class USpringArmComponent;
 
 
 UCLASS()
@@ -41,6 +42,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	UCameraComponent *CameraComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	USphereComponent *CameraCollisionComponent;
+
 private:
 
 	void MoveForward(
@@ -49,6 +53,27 @@ private:
 
 	void MoveRight(
 		float Scale
+	);
+
+	UFUNCTION()
+	void OnCameraBeginOverlap(
+		UPrimitiveComponent *OverlappedComponent,
+		AActor *OtherActor,
+		UPrimitiveComponent *OtherComp, 
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult &SweepResult
+	);
+
+	UFUNCTION()
+	void OnCameraEndOverlap(
+		UPrimitiveComponent *OverlappedComponent,
+		AActor *OtherActor,
+		UPrimitiveComponent *OtherComp,
+		int32 OtherBodyIndex
+	);
+
+	void CameraOverlapHandle(
 	);
 	
 };
