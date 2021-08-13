@@ -7,8 +7,6 @@
 #include "ShooterBaseCharacter.generated.h"
 
 
-class USpringArmComponent;
-class UCameraComponent;
 class UShooterHealthComponent;
 class UTextRenderComponent;
 
@@ -28,33 +26,21 @@ public:
 		FObjectInitializer const &ObjInitializer
 	);
 
-	virtual void Tick(
-		float DeltaTime
-	) override;
+	void StartRunning(
+	);
 
-	virtual void SetupPlayerInputComponent(
-		class UInputComponent *PlayerInputComponent
-	) override;
+	void StopRunning(
+	);
+
+	void StartShooting(
+	);
+
+	void StopShooting(
+	);
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	bool IsDead(
 	) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void StartRunning(
-	);
-
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void StopRunning(
-	);
-
-	UFUNCTION(BlueprintCallable, Category = "Shooting")
-	void StartShooting(
-	);
-
-	UFUNCTION(BlueprintCallable, Category = "Shooting")
-	void StopShooting(
-	);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool IsRunning(
@@ -73,18 +59,8 @@ protected:
 	virtual void BeginPlay(
 	) override;
 
-	virtual void EndPlay(
-		EEndPlayReason::Type const EndPlayReason
-	) override;
-
 	virtual void OnDeath(
 	);
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
-	USpringArmComponent *SpringArmComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
-	UCameraComponent *CameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health")
 	UShooterHealthComponent *HealthComponent;
@@ -107,15 +83,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Material")
 	FName MaterialColorName = "Paint Color";
 
+	bool bIsMovingForward = false;
+
+	bool bIsRunning = false;
+
 private:
-
-	void MoveForward(
-		float Scale
-	);
-
-	void MoveRight(
-		float Scale
-	);
 
 	void OnHealthChanged(
 		float NewHealth,
@@ -127,7 +99,8 @@ private:
 		FHitResult const &HitResult
 	);
 
+	virtual void FellOutOfWorld(
+		UDamageType const &DmgType
+	) override;
 
-	bool bIsMovingForward = false;
-	bool bIsRunning = false;
 };

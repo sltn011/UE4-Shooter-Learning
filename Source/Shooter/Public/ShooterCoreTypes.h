@@ -32,7 +32,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = 1, ClampMax = 999))
 	int32 RoundTimeInSeconds = 30;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = 0, ClampMax = 999))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = 1, ClampMax = 999))
 	int32 RespawnTimeInSeconds = 5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Teams")

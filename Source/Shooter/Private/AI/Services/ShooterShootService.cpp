@@ -37,7 +37,6 @@ void UShooterShootService::TickNode(
 	}
 
 	AActor *TargetActor = Cast<AActor>(Blackboard->GetValueAsObject(TargetActorKey.SelectedKeyName));
-	//UE_LOG(LogShooterShooterService, Display, TEXT("Target actor: %s"), TargetActor ? *TargetActor->GetName() : TEXT("None"));
 	
 	TargetActor ? ShooterCharacter->StartShooting() : ShooterCharacter->StopShooting();
 

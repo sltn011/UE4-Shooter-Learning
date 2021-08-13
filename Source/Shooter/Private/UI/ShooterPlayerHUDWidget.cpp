@@ -13,13 +13,12 @@ bool UShooterPlayerHUDWidget::Initialize(
 {
     bool ParentResult = Super::Initialize();
 
-    UShooterHealthComponent *PlayerHealthComponent = ShooterUtils::GetPlayerComponentByClass<UShooterHealthComponent>(GetOwningPlayerPawn());
-
-    if (!PlayerHealthComponent) {
+    APlayerController *PlayerController = GetOwningPlayer();
+    if (!PlayerController) {
         return false;
     }
-
-    PlayerHealthComponent->OnHealthChanged.AddUObject(this, &UShooterPlayerHUDWidget::OnHealthChanged);
+    PlayerController->GetOnNewPawnNotifier().AddUObject(this, &UShooterPlayerHUDWidget::OnNewPawn);
+    OnNewPawn(GetOwningPlayerPawn());
 
     return ParentResult;
 }
@@ -98,6 +97,18 @@ void UShooterPlayerHUDWidget::OnHealthChanged(
 )
 {
     if (HealthDelta < 0.0f) {
-        OnTakeDamage();
+        OnTakeDamage(); // BP implementable event
     }
+}
+
+void UShooterPlayerHUDWidget::OnNewPawn(
+    APawn *NewPawn
+)
+{
+    UShooterHealthComponent *PlayerHealthComponent = ShooterUtils::GetPlayerComponentByClass<UShooterHealthComponent>(NewPawn);
+    if (!PlayerHealthComponent || PlayerHealthComponent->OnHealthChanged.IsBoundToObject(this)) {
+        return;
+    }
+
+    PlayerHealthComponent->OnHealthChanged.AddUObject(this, &UShooterPlayerHUDWidget::OnHealthChanged);
 }

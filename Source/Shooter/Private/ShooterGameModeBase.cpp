@@ -66,7 +66,7 @@ void AShooterGameModeBase::RegisterKill(
     KillerState->AddKill();
     VictimState->AddDeath();
 
-    if (RespawningEnabled) {
+    if (IsRespawningEnabled()) {
         RespawnAfterDelay(Victim);
     }
 }
@@ -123,11 +123,37 @@ void AShooterGameModeBase::RespawnImmediate(
     AController *Controller
 )
 {
-    if (!Controller) {
+    if (!IsRespawningEnabled() || !Controller) {
         return;
     }
 
     ResetPlayer(Controller);
+}
+
+void AShooterGameModeBase::RespawnAfterDelay(
+    AController *Controller
+)
+{
+    if (!IsRespawningEnabled()) {
+        return;
+    }
+
+    if (RoundCountdown <= GameData.RespawnTimeInSeconds) {
+        return;
+    }
+
+    UShooterRespawnComponent *RespawnComponent = ShooterUtils::GetPlayerComponentByClass<UShooterRespawnComponent>(Controller);
+    if (!RespawnComponent) {
+        return;
+    }
+
+    RespawnComponent->RespawnRequest(GameData.RespawnTimeInSeconds);
+}
+
+bool AShooterGameModeBase::IsRespawningEnabled(
+) const
+{
+    return bRespawningEnabled;
 }
 
 void AShooterGameModeBase::SpawnBots(
@@ -269,22 +295,6 @@ void AShooterGameModeBase::SetPlayerColorFromState(
     }
 
     Character->SetPlayerColor(PlayerState->TeamColor);
-}
-
-void AShooterGameModeBase::RespawnAfterDelay(
-    AController *Controller
-)
-{
-    if (RoundCountdown <= GameData.RespawnTimeInSeconds) {
-        return;
-    }
-
-    UShooterRespawnComponent *RespawnComponent = ShooterUtils::GetPlayerComponentByClass<UShooterRespawnComponent>(Controller);
-    if (!RespawnComponent) {
-        return;
-    }
-
-    RespawnComponent->RespawnRequest(GameData.RespawnTimeInSeconds);
 }
 
 void AShooterGameModeBase::GameOver(

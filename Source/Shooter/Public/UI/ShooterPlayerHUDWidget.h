@@ -57,4 +57,9 @@ private:
 		float HealthDelta
 	);
 
+	UFUNCTION()
+	void OnNewPawn(
+		APawn *NewPawn
+	);
+
 };

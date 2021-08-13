@@ -3,32 +3,23 @@
 
 #include "Player/ShooterBaseCharacter.h"
 
-#include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/ShooterCharMovementComponent.h"
 #include "Components/ShooterHealthComponent.h"
 #include "Components/ShooterWeaponComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "Player/ShooterPlayerState.h"
+#include "ShooterGameModeBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterBaseCharacter, All, All);
 
 AShooterBaseCharacter::AShooterBaseCharacter(
 	FObjectInitializer const &ObjInitializer
 )
-	: Super{ObjInitializer.SetDefaultSubobjectClass<UShooterCharMovementComponent>(ACharacter::CharacterMovementComponentName)}
+	: Super{ ObjInitializer.SetDefaultSubobjectClass<UShooterCharMovementComponent>(ACharacter::CharacterMovementComponentName) }
 {
-	PrimaryActorTick.bCanEverTick = true;
-
-	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	SpringArmComponent->SetupAttachment(GetRootComponent());
-	SpringArmComponent->bUsePawnControlRotation = true;
-	SpringArmComponent->AddRelativeLocation(FVector{ 0.0f, 0.0f, 65.0f });
-	SpringArmComponent->SocketOffset = FVector{ 0.0f, 100.0f, 0.0f };
-
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+	PrimaryActorTick.bCanEverTick = false;
 
 	HealthComponent = CreateDefaultSubobject<UShooterHealthComponent>(TEXT("HealthComponent"));
 
@@ -41,56 +32,6 @@ AShooterBaseCharacter::AShooterBaseCharacter(
 	HealthTextComponent->bOwnerNoSee = true;
 
 	WeaponComponent = CreateDefaultSubobject<UShooterWeaponComponent>(TEXT("WeaponComponent"));
-}
-
-void AShooterBaseCharacter::Tick(
-	float DeltaTime
-)
-{
-	Super::Tick(DeltaTime);
-}
-
-void AShooterBaseCharacter::SetupPlayerInputComponent(
-	UInputComponent *PlayerInputComponent
-)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	if (!PlayerInputComponent || !WeaponComponent || !GetCapsuleComponent()) {
-		UE_LOG(
-			LogShooterBaseCharacter,
-			Error,
-			TEXT("Error binding input actions! PlayerInputComponent: %d, WeaponComponent: %d, CapsuleComponent: %d"),
-			PlayerInputComponent, WeaponComponent, GetCapsuleComponent()
-		);
-		checkNoEntry();
-	}
-
-	PlayerInputComponent->BindAxis("MoveForward", this, &AShooterBaseCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AShooterBaseCharacter::MoveRight);
-
-	PlayerInputComponent->BindAxis("TurnAround", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AShooterBaseCharacter::StartRunning);
-	PlayerInputComponent->BindAction("Run", IE_Released, this, &AShooterBaseCharacter::StopRunning);
-
-	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AShooterBaseCharacter::StartShooting);
-	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &AShooterBaseCharacter::StopShooting);
-
-	PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::EquipNextWeapon);
-	PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::ReloadWeapon);
-}
-
-bool AShooterBaseCharacter::IsDead(
-) const
-{
-	if (!HealthComponent || HealthComponent->IsDead()) {
-		return true;
-	}
-	return false;
 }
 
 void AShooterBaseCharacter::StartRunning(
@@ -119,6 +60,15 @@ void AShooterBaseCharacter::StopShooting(
 )
 {
 	WeaponComponent->StopShooting();
+}
+
+bool AShooterBaseCharacter::IsDead(
+) const
+{
+	if (!HealthComponent || HealthComponent->IsDead()) {
+		return true;
+	}
+	return false;
 }
 
 bool AShooterBaseCharacter::IsRunning(
@@ -167,8 +117,6 @@ void AShooterBaseCharacter::BeginPlay(
 {
 	Super::BeginPlay();
 
-	check(SpringArmComponent);
-	check(CameraComponent);
 	check(HealthComponent);
 	check(HealthTextComponent);
 	check(WeaponComponent);
@@ -182,20 +130,9 @@ void AShooterBaseCharacter::BeginPlay(
 	LandedDelegate.AddDynamic(this, &AShooterBaseCharacter::OnGroundLanding);
 }
 
-void AShooterBaseCharacter::EndPlay(
-	EEndPlayReason::Type const EndPlayReason
-)
-{
-	Super::EndPlay(EndPlayReason);
-}
-
 void AShooterBaseCharacter::OnDeath(
 )
 {
-	if (Controller) {
-		Controller->ChangeState(NAME_Spectating);
-	}
-
 	UCapsuleComponent *Capsule = GetCapsuleComponent();
 	if (Capsule) {
 		Capsule->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
@@ -217,21 +154,6 @@ void AShooterBaseCharacter::OnDeath(
 	}
 
 	SetLifeSpan(LifeSpanAfterDeath);
-}
-
-void AShooterBaseCharacter::MoveForward(
-	float Scale
-)
-{
-	bIsMovingForward = Scale > 0.0f;
-	AddMovementInput(GetActorForwardVector(), Scale);
-}
-
-void AShooterBaseCharacter::MoveRight(
-	float Scale
-)
-{
-	AddMovementInput(GetActorRightVector(), Scale);
 }
 
 void AShooterBaseCharacter::OnHealthChanged(
@@ -259,4 +181,36 @@ void AShooterBaseCharacter::OnGroundLanding(
 
 		TakeDamage(FallDamage, {}, nullptr, nullptr);
 	}
+}
+
+void AShooterBaseCharacter::FellOutOfWorld(
+	UDamageType const &DmgType
+)
+{
+	UWorld *World = GetWorld();
+	if (World) {
+
+		AController *OwnerController = GetController();
+
+		if (OwnerController) {
+
+			AShooterPlayerState *OwnerPlayerState = OwnerController->GetPlayerState<AShooterPlayerState>();
+			if (OwnerPlayerState) {
+
+				OwnerPlayerState->AddDeath();
+
+				AShooterGameModeBase *GameMode = World->GetAuthGameMode<AShooterGameModeBase>();
+				if (GameMode && GameMode->IsRespawningEnabled()) {
+					GameMode->RespawnAfterDelay(OwnerController);
+				}
+
+			}
+
+		}
+
+	}
+
+	OnDeath();
+
+	Super::FellOutOfWorld(DmgType);
 }

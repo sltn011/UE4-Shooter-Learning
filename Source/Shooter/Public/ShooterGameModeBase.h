@@ -51,6 +51,13 @@ public:
 		AController *Controller
 	);
 
+	void RespawnAfterDelay(
+		AController *Controller
+	);
+
+	bool IsRespawningEnabled(
+	) const;
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
@@ -63,7 +70,7 @@ protected:
 	TSubclassOf<APawn> AIPawnClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
-	bool RespawningEnabled = true;
+	bool bRespawningEnabled = true;
 
 private:
 
@@ -92,10 +99,6 @@ private:
 	);
 
 	void SetPlayerColorFromState(
-		AController *Controller
-	);
-
-	void RespawnAfterDelay(
 		AController *Controller
 	);
 
