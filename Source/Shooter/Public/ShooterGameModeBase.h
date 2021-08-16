@@ -27,7 +27,7 @@ public:
 		AController *Controller
 	) override;
 
-	void RegisterKill(
+	virtual void RegisterKill(
 		AController *Killer,
 		AController *Victim
 	);
@@ -47,6 +47,11 @@ public:
 	FGameData GetGameData(
 	) const;
 
+	bool GetColorFromTeamID(
+		int32 TeamID,
+		FLinearColor &TeamColor
+	);
+
 	void RespawnImmediate(
 		AController *Controller
 	);
@@ -60,6 +65,25 @@ public:
 
 protected:
 
+	virtual void OnRoundStart(
+	);
+
+	virtual void OnRoundEnd(
+	);
+
+	virtual void OnGameEnd(
+	);
+
+	virtual void InitTeamsInfo(
+	);
+
+	void SetPlayerColorFromState(
+		AController *Controller
+	);
+
+	void SpawnBotsControllers(
+	);
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
 	FGameData GameData;
 
@@ -72,13 +96,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
 	bool bRespawningEnabled = true;
 
+	int32 RoundCountdown = 0;
+
 private:
-
-	void SpawnBots(
-	);
-
-	void StartRound(
-	);
 
 	void UpdateGameTimer(
 	);
@@ -90,23 +110,10 @@ private:
 	void ResetPlayers(
 	);
 
-	void InitTeamsInfo(
-	);
-
-	bool GetColorFromTeamID(
-		int32 TeamID,
-		FLinearColor &TeamColor
-	);
-
-	void SetPlayerColorFromState(
-		AController *Controller
-	);
-
 	void GameOver(
 	);
 
 	int32 CurrentRound = 1;
-	int32 RoundCountdown = 0;
 
 	FTimerHandle GameRoundTimerHandle;
 

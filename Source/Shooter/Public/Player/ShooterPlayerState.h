@@ -40,11 +40,15 @@ public:
 	) const;
 
 	int32 TeamID;
+
 	FLinearColor TeamColor;
+
+	int32 PlayerSpawnPointNum;
 
 private:
 
 	int32 KillsNum = 0;
+
 	int32 DeathsNum = 0;
 
 };

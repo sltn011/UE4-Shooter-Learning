@@ -7,6 +7,7 @@
 #include "BrainComponent.h"
 #include "Components/ShooterRespawnComponent.h"
 #include "EngineUtils.h"
+#include "GameFramework/PlayerStart.h"
 #include "Player/ShooterBaseCharacter.h"
 #include "Player/ShooterPlayerController.h"
 #include "Player/ShooterPlayerState.h"
@@ -29,11 +30,12 @@ void AShooterGameModeBase::StartPlay(
 {
     Super::StartPlay();
 
-    SpawnBots();
+    SpawnBotsControllers();
     InitTeamsInfo();
+    ResetPlayers();
 
     CurrentRound = 1;
-    StartRound();
+    OnRoundStart();
 }
 
 UClass *AShooterGameModeBase::GetDefaultPawnClassForController_Implementation(
@@ -119,6 +121,20 @@ FGameData AShooterGameModeBase::GetGameData(
     return GameData;
 }
 
+bool AShooterGameModeBase::GetColorFromTeamID(
+    int32 TeamID,
+    FLinearColor &TeamColor
+)
+{
+    if (!GameData.TeamColors.IsValidIndex(TeamID - 1)) {
+        UE_LOG(LogShooterGameModeBase, Warning, TEXT("No color assigned for team with ID %d!"), TeamID);
+        return false;
+    }
+
+    TeamColor = GameData.TeamColors[TeamID - 1];
+    return true;
+}
+
 void AShooterGameModeBase::RespawnImmediate(
     AController *Controller
 )
@@ -156,7 +172,50 @@ bool AShooterGameModeBase::IsRespawningEnabled(
     return bRespawningEnabled;
 }
 
-void AShooterGameModeBase::SpawnBots(
+void AShooterGameModeBase::OnRoundStart(
+)
+{
+    RoundCountdown = GameData.RoundTimeInSeconds;
+    UE_LOG(LogShooterGameModeBase, Display, TEXT("Round %d started!"), CurrentRound);
+    GetWorldTimerManager().SetTimer(GameRoundTimerHandle, this, &AShooterGameModeBase::UpdateGameTimer, 1.0f, true);
+}
+
+void AShooterGameModeBase::OnRoundEnd(
+)
+{
+    ResetPlayers();
+    OnRoundStart();
+}
+
+void AShooterGameModeBase::OnGameEnd(
+)
+{
+    --CurrentRound; // Dec by 1 to not have round number bigger than max rounds on screen
+    GameOver();
+}
+
+void AShooterGameModeBase::SetPlayerColorFromState(
+    AController *Controller
+)
+{
+    if (!Controller) {
+        return;
+    }
+
+    AShooterPlayerState *PlayerState = Controller->GetPlayerState<AShooterPlayerState>();
+    if (!PlayerState) {
+        return;
+    }
+
+    AShooterBaseCharacter *Character = Cast<AShooterBaseCharacter>(Controller->GetPawn());
+    if (!Character) {
+        return;
+    }
+
+    Character->SetPlayerColor(PlayerState->TeamColor);
+}
+
+void AShooterGameModeBase::SpawnBotsControllers(
 )
 {
     UWorld *World = GetWorld();
@@ -164,23 +223,14 @@ void AShooterGameModeBase::SpawnBots(
         return;
     }
 
-    // One player is always not bot
+    // One player is not bot
     for (int32 i = 0; i < GameData.NumberOfPlayers - 1; ++i) {
 
         FActorSpawnParameters SpawnParameters;
         SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
         AAIController *SpawnedController = World->SpawnActor<AAIController>(AIControllerClass, SpawnParameters);
-        RestartPlayer(SpawnedController);
     }
-}
-
-void AShooterGameModeBase::StartRound(
-)
-{
-    RoundCountdown = GameData.RoundTimeInSeconds;
-    UE_LOG(LogShooterGameModeBase, Display, TEXT("Round %d started!"), CurrentRound);
-    GetWorldTimerManager().SetTimer(GameRoundTimerHandle, this, &AShooterGameModeBase::UpdateGameTimer, 1.0f, true);
 }
 
 void AShooterGameModeBase::UpdateGameTimer(
@@ -193,12 +243,10 @@ void AShooterGameModeBase::UpdateGameTimer(
         UE_LOG(LogShooterGameModeBase, Display, TEXT("Round %d ended!"), CurrentRound);
         
         if (++CurrentRound <= GameData.NumberOfRounds) {
-            ResetPlayers();
-            StartRound();
+            OnRoundEnd();
         }
         else {
-            --CurrentRound; // Dec by 1 to not have round number bigger than max rounds on screen
-            GameOver();
+            OnGameEnd();
         }
     }
 }
@@ -213,6 +261,11 @@ void AShooterGameModeBase::ResetPlayer(
 
     RestartPlayer(Controller);
     SetPlayerColorFromState(Controller);
+
+    AShooterPlayerState *PlayerState = Controller->GetPlayerState<AShooterPlayerState>();
+    if (!PlayerState) {
+        return;
+    }
 }
 
 void AShooterGameModeBase::ResetPlayers(
@@ -236,7 +289,10 @@ void AShooterGameModeBase::InitTeamsInfo(
         return;
     }
 
-    int32 TeamID = 1;
+    int32 PlayerInTeam1ID = 1;
+    int32 PlayerInTeam2ID = 1;
+
+    int32 TeamID = FMath::RandBool() ? 1 : 2;
     for (FConstControllerIterator It = World->GetControllerIterator(); It; ++It) {
         
         AController *Controller = It->Get();
@@ -260,41 +316,6 @@ void AShooterGameModeBase::InitTeamsInfo(
 
         TeamID = TeamID == 1 ? 2 : 1;
     }
-}
-
-bool AShooterGameModeBase::GetColorFromTeamID(
-    int32 TeamID,
-    FLinearColor &TeamColor
-)
-{
-    if (!GameData.TeamColors.IsValidIndex(TeamID - 1)) {
-        UE_LOG(LogShooterGameModeBase, Warning, TEXT("No color assigned for team with ID %d!"), TeamID);
-        return false;
-    }
-    
-    TeamColor = GameData.TeamColors[TeamID - 1];
-    return true;
-}
-
-void AShooterGameModeBase::SetPlayerColorFromState(
-    AController *Controller
-)
-{
-    if (!Controller) {
-        return;
-    }
-
-    AShooterPlayerState *PlayerState = Controller->GetPlayerState<AShooterPlayerState>();
-    if (!PlayerState) {
-        return;
-    }
-
-    AShooterBaseCharacter *Character = Cast<AShooterBaseCharacter>(Controller->GetPawn());
-    if (!Character) {
-        return;
-    }
-
-    Character->SetPlayerColor(PlayerState->TeamColor);
 }
 
 void AShooterGameModeBase::GameOver(
