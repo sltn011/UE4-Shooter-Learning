@@ -28,6 +28,24 @@ bool UShooterGameDataWidget::GetRoundTimeRemaining(
     return true;
 }
 
+bool UShooterGameDataWidget::GetRoundTimeRemainingText(
+    FText &TimeRemainingText
+) const
+{
+    int32 Minutes, Seconds;
+    if (!GetRoundTimeRemaining(Minutes, Seconds)) {
+        return false;
+    }
+
+    FString MinutesString = Minutes > 9 ? FString::Printf(TEXT("%d"), Minutes) : FString::Printf(TEXT("0%d"), Minutes);
+    FString SecondsString = Seconds > 9 ? FString::Printf(TEXT("%d"), Seconds) : FString::Printf(TEXT("0%d"), Seconds);
+
+    FString TimeRemainingString = FString::Printf(TEXT("%s : %s"), *MinutesString, *SecondsString);
+
+    TimeRemainingText = FText::FromString(TimeRemainingString);
+    return true;
+}
+
 AShooterGameModeBase *UShooterGameDataWidget::GetGameMode(
 ) const
 {

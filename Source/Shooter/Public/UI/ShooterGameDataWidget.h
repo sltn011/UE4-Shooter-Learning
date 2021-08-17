@@ -27,6 +27,11 @@ public:
 		int32 &MinutesRemaining,
 		int32 &SecondsRemaining
 	) const;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	bool GetRoundTimeRemainingText(
+		FText &TimeRemainingText
+	) const;
 	
 protected:
 
