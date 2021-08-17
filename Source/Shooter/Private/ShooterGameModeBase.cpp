@@ -121,7 +121,7 @@ FGameData AShooterGameModeBase::GetGameData(
     return GameData;
 }
 
-bool AShooterGameModeBase::GetColorFromTeamID(
+bool AShooterGameModeBase::GetTeamColor(
     int32 TeamID,
     FLinearColor &TeamColor
 )
@@ -306,7 +306,7 @@ void AShooterGameModeBase::InitTeamsInfo(
         }
 
         FLinearColor TeamColor;
-        if (!GetColorFromTeamID(TeamID, TeamColor)) {
+        if (!GetTeamColor(TeamID, TeamColor)) {
             TeamColor = GameData.DefaultTeamColor;
         }
 

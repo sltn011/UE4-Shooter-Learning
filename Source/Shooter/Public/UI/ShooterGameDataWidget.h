@@ -17,13 +17,15 @@ class SHOOTER_API UShooterGameDataWidget : public UUserWidget
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	bool GetRoundsDataText(
-		FText &RoundNumText
+	bool GetRoundsData(
+		int32 &CurrentRoundsNum,
+		int32 &MaxRoundsNum
 	) const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	bool GetRoundTimeRemainigText(
-		FText &TimeRemainingText
+	bool GetRoundTimeRemaining(
+		int32 &MinutesRemaining,
+		int32 &SecondsRemaining
 	) const;
 	
 protected:

@@ -47,7 +47,7 @@ public:
 	FGameData GetGameData(
 	) const;
 
-	bool GetColorFromTeamID(
+	bool GetTeamColor(
 		int32 TeamID,
 		FLinearColor &TeamColor
 	);

@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "ShooterRoundDataWidget.generated.h"
+#include "ShooterTeamScoreWidget.generated.h"
 
 class AShooterGameModeBase;
 
 UCLASS()
-class SHOOTER_API UShooterRoundDataWidget : public UUserWidget
+class SHOOTER_API UShooterTeamScoreWidget : public UUserWidget
 {
 
 	GENERATED_BODY()
@@ -17,12 +17,13 @@ class SHOOTER_API UShooterRoundDataWidget : public UUserWidget
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	int32 GetTeamPlayerCount(
-		bool bAliveOnly
+	bool GetTeamScore(
+		int32 &TeamScore
 	) const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	FLinearColor GetTeamColor(
+	bool GetTeamColor(
+		FLinearColor &TeamColor
 	) const;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")

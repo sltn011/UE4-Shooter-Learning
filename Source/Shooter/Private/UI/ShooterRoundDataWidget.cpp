@@ -7,7 +7,7 @@
 
 int32 UShooterRoundDataWidget::GetTeamPlayerCount(
 	bool bAliveOnly
-)
+) const
 {
 	AShooterGameModeCS *GameMode = Cast<AShooterGameModeCS>(GetGameMode());
 	if (!GameMode) {
@@ -18,13 +18,13 @@ int32 UShooterRoundDataWidget::GetTeamPlayerCount(
 }
 
 FLinearColor UShooterRoundDataWidget::GetTeamColor(
-)
+) const
 {
 	FLinearColor TeamColor = FLinearColor::White;
 
 	AShooterGameModeCS *GameMode = Cast<AShooterGameModeCS>(GetGameMode());
 	if (GameMode) {
-		GameMode->GetColorFromTeamID(TeamID, TeamColor);
+		GameMode->GetTeamColor(TeamID, TeamColor);
 	}
 	return TeamColor;
 }

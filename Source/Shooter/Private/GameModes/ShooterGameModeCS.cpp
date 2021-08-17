@@ -83,11 +83,13 @@ void AShooterGameModeCS::SwapTeams(
         PlayerState->TeamID = NewTeamID;
 
         FLinearColor NewTeamColor;
-        if (GetColorFromTeamID(NewTeamID, NewTeamColor)) {
+        if (GetTeamColor(NewTeamID, NewTeamColor)) {
             PlayerState->TeamColor = NewTeamColor;
             SetPlayerColorFromState(Player);
         }
     }
+
+    Swap(Team1Score, Team2Score);
 }
 
 int32 AShooterGameModeCS::GetTeamPlayerCount(

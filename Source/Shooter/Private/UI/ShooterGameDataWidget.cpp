@@ -5,22 +5,17 @@
 
 #include "ShooterGameModeBase.h"
 
-bool UShooterGameDataWidget::GetRoundsDataText(
-    FText &RoundNumText
+bool UShooterGameDataWidget::GetRoundsData(
+    int32 &CurrentRoundsNum,
+    int32 &MaxRoundsNum
 ) const
 {
-    int32 CurrentRound, MaxRounds;
-    if (!GetCurrentRoundNum(CurrentRound) || !GetMaxRoundsNum(MaxRounds)) {
-        return false;
-    }
-
-    FString RoundNumString = FString::Printf(TEXT("%d / %d"), CurrentRound, MaxRounds);
-    RoundNumText = FText::FromString(RoundNumString);
-    return true;
+    return GetCurrentRoundNum(CurrentRoundsNum) && GetMaxRoundsNum(MaxRoundsNum);
 }
 
-bool UShooterGameDataWidget::GetRoundTimeRemainigText(
-    FText &TimeRemainingText
+bool UShooterGameDataWidget::GetRoundTimeRemaining(
+    int32 &MinutesRemaining,
+    int32 &SecondsRemaining
 ) const
 {
     int32 RoundCountdownSeconds;
@@ -28,14 +23,8 @@ bool UShooterGameDataWidget::GetRoundTimeRemainigText(
         return false;
     }
 
-    int32 Minutes = RoundCountdownSeconds / 60;
-    int32 Seconds = RoundCountdownSeconds % 60;
-
-    FString MinutesString = Minutes > 9 ? FString::Printf(TEXT("%d"), Minutes) : FString::Printf(TEXT("0%d"), Minutes);
-    FString SecondsString = Seconds > 9 ? FString::Printf(TEXT("%d"), Seconds) : FString::Printf(TEXT("0%d"), Seconds);
-
-    FString TimeRemainingString = FString::Printf(TEXT("%s : %s"), *MinutesString, *SecondsString);
-    TimeRemainingText = FText::FromString(TimeRemainingString);
+    MinutesRemaining = RoundCountdownSeconds / 60;
+    SecondsRemaining = RoundCountdownSeconds % 60;
     return true;
 }
 
