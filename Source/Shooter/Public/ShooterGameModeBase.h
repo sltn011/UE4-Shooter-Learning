@@ -32,6 +32,14 @@ public:
 		AController *Victim
 	);
 
+	virtual bool SetPause(
+		APlayerController *PlayerController,
+		FCanUnpause CanUnpauseDelegate = FCanUnpause()
+	) override;
+
+	virtual bool ClearPause(
+	) override;
+
 	void LogPlayersStatistics(
 	) const;
 
@@ -63,6 +71,11 @@ public:
 	bool IsRespawningEnabled(
 	) const;
 
+	EShooterGameState GetShooterGameState(
+	) const;
+
+	FOnGameStateChange OnGameStateChange;
+
 protected:
 
 	virtual void OnRoundStart(
@@ -84,6 +97,10 @@ protected:
 	void SpawnBotsControllers(
 	);
 
+	void SetShooterGameState(
+		EShooterGameState NewGameState
+	);
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
 	FGameData GameData;
 
@@ -97,6 +114,8 @@ protected:
 	bool bRespawningEnabled = true;
 
 	int32 RoundCountdown = 0;
+
+	EShooterGameState ShooterGameState = EShooterGameState::WaitingToStart;
 
 private:
 

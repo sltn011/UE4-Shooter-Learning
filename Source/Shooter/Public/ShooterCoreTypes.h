@@ -42,6 +42,22 @@ public:
 	TArray<FLinearColor> TeamColors;
 };
 
+UENUM(BlueprintType)
+enum class EShooterGameState : uint8 {
+	WaitingToStart,
+	InProgress,
+	Paused,
+	GameOver
+};
+
+UENUM(BlueprintType)
+enum class EShooterGameUIOverlay : uint8 {
+	NONE,
+	PlayersStatsTable
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameStateChange, EShooterGameState);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameUIOverlaySet, EShooterGameUIOverlay);
 
 /*
  * HEALTH

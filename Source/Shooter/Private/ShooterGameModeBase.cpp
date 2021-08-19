@@ -36,6 +36,8 @@ void AShooterGameModeBase::StartPlay(
 
     CurrentRound = 1;
     OnRoundStart();
+
+    SetShooterGameState(EShooterGameState::InProgress);
 }
 
 UClass *AShooterGameModeBase::GetDefaultPawnClassForController_Implementation(
@@ -71,6 +73,32 @@ void AShooterGameModeBase::RegisterKill(
     if (IsRespawningEnabled()) {
         RespawnAfterDelay(Victim);
     }
+}
+
+bool AShooterGameModeBase::SetPause(
+    APlayerController *PlayerController,
+    FCanUnpause CanUnpauseDelegate
+)
+{
+    bool ParentVal = Super::SetPause(PlayerController, CanUnpauseDelegate);
+
+    if (ParentVal) {
+        SetShooterGameState(EShooterGameState::Paused);
+    }
+
+    return ParentVal;
+}
+
+bool AShooterGameModeBase::ClearPause(
+)
+{
+    bool ParentVal = Super::ClearPause();
+
+    if (ParentVal) {
+        SetShooterGameState(EShooterGameState::InProgress);
+    }
+
+    return ParentVal;
 }
 
 void AShooterGameModeBase::LogPlayersStatistics(
@@ -172,6 +200,12 @@ bool AShooterGameModeBase::IsRespawningEnabled(
     return bRespawningEnabled;
 }
 
+EShooterGameState AShooterGameModeBase::GetShooterGameState(
+) const
+{
+    return ShooterGameState;
+}
+
 void AShooterGameModeBase::OnRoundStart(
 )
 {
@@ -230,7 +264,25 @@ void AShooterGameModeBase::SpawnBotsControllers(
         SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
         AAIController *SpawnedController = World->SpawnActor<AAIController>(AIControllerClass, SpawnParameters);
+        if (SpawnedController) {
+            AShooterPlayerState *SpawnedState = SpawnedController->GetPlayerState<AShooterPlayerState>();
+            if (SpawnedState) {
+                SpawnedState->SetPlayerName(FString::Printf(TEXT("Bot Player %d"), i));
+            }
+        }
     }
+}
+
+void AShooterGameModeBase::SetShooterGameState(
+    EShooterGameState NewGameState
+)
+{
+    if (ShooterGameState == NewGameState) {
+        return;
+    }
+
+    ShooterGameState = NewGameState;
+    OnGameStateChange.Broadcast(ShooterGameState);
 }
 
 void AShooterGameModeBase::UpdateGameTimer(
@@ -344,4 +396,6 @@ void AShooterGameModeBase::GameOver(
             }
         }
     }
+
+    SetShooterGameState(EShooterGameState::GameOver);
 }
