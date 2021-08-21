@@ -21,12 +21,6 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Levels")
-	FName TestLevelName;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Levels")
-	FName DustIILevelName;
-
 	UPROPERTY(meta = (BindWidget))
 	UButton *StartTestLevelButton;
 
