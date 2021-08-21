@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "ShooterMenuUserWidget.generated.h"
+#include "ShooterMenuWidget.generated.h"
 
 class UButton;
 
 UCLASS()
-class SHOOTER_API UShooterMenuUserWidget : public UUserWidget
+class SHOOTER_API UShooterMenuWidget : public UUserWidget
 {
 
 	GENERATED_BODY()

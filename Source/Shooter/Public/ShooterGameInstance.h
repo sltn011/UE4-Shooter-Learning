@@ -15,6 +15,9 @@ class SHOOTER_API UShooterGameInstance : public UGameInstance
 
 public:
 
+	FName GetMenuLevelName(
+	) const;
+
 	FName GetTestLevelName(
 	) const;
 
@@ -22,6 +25,9 @@ public:
 	) const;
 
 protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Levels")
+	FName MenuLevelName = NAME_None;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Levels")
 	FName TestLevelName = NAME_None;

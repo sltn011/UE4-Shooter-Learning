@@ -3,6 +3,12 @@
 
 #include "ShooterGameInstance.h"
 
+FName UShooterGameInstance::GetMenuLevelName(
+) const
+{
+    return MenuLevelName;
+}
+
 FName UShooterGameInstance::GetTestLevelName(
 ) const
 {

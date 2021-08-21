@@ -1,31 +1,31 @@
 // Shooter, All Rights Reserved
 
 
-#include "Menu/UI/ShooterMenuUserWidget.h"
+#include "Menu/UI/ShooterMenuWidget.h"
 
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "ShooterGameInstance.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogShooterMenuUserWidget, All, All);
+DEFINE_LOG_CATEGORY_STATIC(LogShooterMenuWidget, All, All);
 
-bool UShooterMenuUserWidget::Initialize(
+bool UShooterMenuWidget::Initialize(
 )
 {
     bool ParentVal = Super::Initialize();
 
     if (StartTestLevelButton) {
-        StartTestLevelButton->OnClicked.AddDynamic(this, &UShooterMenuUserWidget::OnTestLevelStart);
+        StartTestLevelButton->OnClicked.AddDynamic(this, &UShooterMenuWidget::OnTestLevelStart);
     }
 
     if (StartDustIILevelButton) {
-        StartDustIILevelButton->OnClicked.AddDynamic(this, &UShooterMenuUserWidget::OnDustIILevelStart);
+        StartDustIILevelButton->OnClicked.AddDynamic(this, &UShooterMenuWidget::OnDustIILevelStart);
     }
 
     return ParentVal;
 }
 
-void UShooterMenuUserWidget::OnTestLevelStart(
+void UShooterMenuWidget::OnTestLevelStart(
 )
 {
     UWorld *World = GetWorld();
@@ -40,14 +40,14 @@ void UShooterMenuUserWidget::OnTestLevelStart(
 
     FName TestLevelName = GameInstance->GetTestLevelName();
     if (TestLevelName.IsNone()) {
-        UE_LOG(LogShooterMenuUserWidget, Error, TEXT("Test level name not set in GameInstance! Couldn't open TestLevel!"));
+        UE_LOG(LogShooterMenuWidget, Error, TEXT("Test level name not set in GameInstance! Couldn't open TestLevel!"));
         return;
     }
 
     UGameplayStatics::OpenLevel(GetWorld(), TestLevelName);
 }
 
-void UShooterMenuUserWidget::OnDustIILevelStart(
+void UShooterMenuWidget::OnDustIILevelStart(
 )
 {
     UWorld *World = GetWorld();
@@ -62,7 +62,7 @@ void UShooterMenuUserWidget::OnDustIILevelStart(
 
     FName DustIILevelName = GameInstance->GetDustIILevelName();
     if (DustIILevelName.IsNone()) {
-        UE_LOG(LogShooterMenuUserWidget, Error, TEXT("Dust2 level name not set in GameInstance! Couldn't open Dust2!"));
+        UE_LOG(LogShooterMenuWidget, Error, TEXT("Dust2 level name not set in GameInstance! Couldn't open Dust2!"));
         return;
     }
 
