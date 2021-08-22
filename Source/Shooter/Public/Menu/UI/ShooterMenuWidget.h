@@ -7,6 +7,7 @@
 #include "ShooterMenuWidget.generated.h"
 
 class UButton;
+class UShooterLevelSelectorWidget;
 
 UCLASS()
 class SHOOTER_API UShooterMenuWidget : public UUserWidget
@@ -22,10 +23,10 @@ public:
 protected:
 
 	UPROPERTY(meta = (BindWidget))
-	UButton *StartTestLevelButton;
+	UShooterLevelSelectorWidget *LevelSelector;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton *StartDustIILevelButton;
+	UButton *PlaySelectedLevelButton;
 
 	UPROPERTY(meta = (BindWidget))
 	UButton *QuitGameButton;
@@ -33,11 +34,7 @@ protected:
 private:
 
 	UFUNCTION()
-	void OnTestLevelStart(
-	);
-
-	UFUNCTION()
-	void OnDustIILevelStart(
+	void OnPlaySelectedLevel(
 	);
 
 	UFUNCTION()

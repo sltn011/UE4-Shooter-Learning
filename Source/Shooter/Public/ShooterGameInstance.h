@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "ShooterCoreTypes.h"
 #include "ShooterGameInstance.generated.h"
 
 
@@ -15,6 +16,9 @@ class SHOOTER_API UShooterGameInstance : public UGameInstance
 
 public:
 
+	virtual void Init(
+	) override;
+
 	FName GetMenuLevelName(
 	) const;
 
@@ -23,6 +27,9 @@ public:
 
 	FName GetDustIILevelName(
 	) const;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Levels")
+	TArray<FLevelData> Levels;
 
 protected:
 

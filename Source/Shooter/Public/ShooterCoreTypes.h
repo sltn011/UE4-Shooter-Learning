@@ -13,7 +13,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnNotified, USkeletalMeshComponent *);
 
 
 /*
- * Game
+ * GAME
  */
 
 USTRUCT(BlueprintType)
@@ -59,6 +59,8 @@ enum class EShooterGameUIOverlay : uint8 {
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameStateChange, EShooterGameState);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameUIOverlaySet, EShooterGameUIOverlay);
 
+
+
 /*
  * HEALTH
  */
@@ -69,7 +71,31 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, float);
 
 
 /*
- * Pickups
+ * LEVELS
+ */
+
+USTRUCT(BlueprintType)
+struct FLevelData {
+	
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Level")
+	FName LevelName = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Level")
+	FName DisplayedLevelName = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Level")
+	UTexture2D *LevelIcon;
+
+};
+
+
+
+/*
+ * PICKUPS
  */
 
 UENUM(BlueprintType)
