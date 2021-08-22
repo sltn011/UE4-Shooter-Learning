@@ -22,6 +22,10 @@ bool UShooterMenuWidget::Initialize(
         StartDustIILevelButton->OnClicked.AddDynamic(this, &UShooterMenuWidget::OnDustIILevelStart);
     }
 
+    if (QuitGameButton) {
+        QuitGameButton->OnClicked.AddDynamic(this, &UShooterMenuWidget::OnQuitGame);
+    }
+
     return ParentVal;
 }
 
@@ -67,4 +71,10 @@ void UShooterMenuWidget::OnDustIILevelStart(
     }
 
     UGameplayStatics::OpenLevel(GetWorld(), DustIILevelName);
+}
+
+void UShooterMenuWidget::OnQuitGame(
+)
+{
+    UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, true);
 }

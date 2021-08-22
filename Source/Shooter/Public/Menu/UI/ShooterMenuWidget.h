@@ -27,6 +27,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UButton *StartDustIILevelButton;
 
+	UPROPERTY(meta = (BindWidget))
+	UButton *QuitGameButton;
+
 private:
 
 	UFUNCTION()
@@ -35,6 +38,10 @@ private:
 
 	UFUNCTION()
 	void OnDustIILevelStart(
+	);
+
+	UFUNCTION()
+	void OnQuitGame(
 	);
 
 };
