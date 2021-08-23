@@ -7,7 +7,7 @@
 #include "Components/ShooterCharMovementComponent.h"
 #include "Components/ShooterHealthComponent.h"
 #include "Components/ShooterWeaponComponent.h"
-#include "Components/WidgetComponent.h"
+#include "Components/ShooterHealthBarWidgetComponent.h"
 #include "GameFramework/Controller.h"
 #include "Player/ShooterPlayerState.h"
 #include "ShooterGameModeBase.h"
@@ -24,11 +24,12 @@ AShooterBaseCharacter::AShooterBaseCharacter(
 
 	HealthComponent = CreateDefaultSubobject<UShooterHealthComponent>(TEXT("HealthComponent"));
 
-	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarComponent"));
+	HealthBarComponent = CreateDefaultSubobject<UShooterHealthBarWidgetComponent>(TEXT("HealthBarComponent"));
 	HealthBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	HealthBarComponent->AddLocalOffset({ 0.0f, 0.0f, 100.0f });
 	HealthBarComponent->SetDrawAtDesiredSize(true);
 	HealthBarComponent->bOwnerNoSee = true;
+	HealthComponent->OnDeath.AddUObject(HealthBarComponent, &UShooterHealthBarWidgetComponent::OnOwnerDeath);
 	HealthBarComponent->SetupAttachment(GetRootComponent());
 
 	WeaponComponent = CreateDefaultSubobject<UShooterWeaponComponent>(TEXT("WeaponComponent"));
