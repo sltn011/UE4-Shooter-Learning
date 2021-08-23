@@ -7,10 +7,11 @@
 #include "Components/ShooterCharMovementComponent.h"
 #include "Components/ShooterHealthComponent.h"
 #include "Components/ShooterWeaponComponent.h"
-#include "Components/TextRenderComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/Controller.h"
 #include "Player/ShooterPlayerState.h"
 #include "ShooterGameModeBase.h"
+#include "UI/ShooterHealthBarWidget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterBaseCharacter, All, All);
 
@@ -23,13 +24,12 @@ AShooterBaseCharacter::AShooterBaseCharacter(
 
 	HealthComponent = CreateDefaultSubobject<UShooterHealthComponent>(TEXT("HealthComponent"));
 
-	HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("HealthTextComponent"));
-	HealthTextComponent->SetupAttachment(GetRootComponent());
-	HealthTextComponent->Text = FText::FromString(FString{ TEXT("0") });
-	HealthTextComponent->TextRenderColor = FColor::Red;
-	HealthTextComponent->AddLocalOffset({ 0.0f, 0.0f, 100.0f });
-	HealthTextComponent->HorizontalAlignment = EHorizTextAligment::EHTA_Center;
-	HealthTextComponent->bOwnerNoSee = true;
+	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarComponent"));
+	HealthBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	HealthBarComponent->AddLocalOffset({ 0.0f, 0.0f, 100.0f });
+	HealthBarComponent->SetDrawAtDesiredSize(true);
+	HealthBarComponent->bOwnerNoSee = true;
+	HealthBarComponent->SetupAttachment(GetRootComponent());
 
 	WeaponComponent = CreateDefaultSubobject<UShooterWeaponComponent>(TEXT("WeaponComponent"));
 }
@@ -118,7 +118,7 @@ void AShooterBaseCharacter::BeginPlay(
 	Super::BeginPlay();
 
 	check(HealthComponent);
-	check(HealthTextComponent);
+	check(HealthBarComponent);
 	check(WeaponComponent);
 
 	check(LifeSpanAfterDeath >= 0.0f);
@@ -149,8 +149,8 @@ void AShooterBaseCharacter::OnDeath(
 		PlayerMesh->SetSimulatePhysics(true);
 	}
 
-	if (HealthTextComponent) {
-		HealthTextComponent->SetText(FText::GetEmpty());
+	if (HealthBarComponent) {
+		HealthBarComponent->SetVisibility(false);
 	}
 
 	SetLifeSpan(LifeSpanAfterDeath);
@@ -161,8 +161,17 @@ void AShooterBaseCharacter::OnHealthChanged(
 	float HealthDelta
 )
 {
-	if (HealthTextComponent) {
-		HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), NewHealth)));
+	if (!HealthBarComponent) {
+		return;
+	}
+
+	UShooterHealthBarWidget *HealthBarWidget = Cast<UShooterHealthBarWidget>(HealthBarComponent->GetWidget());
+	if (!HealthBarWidget) {
+		return;
+	}
+
+	if (!IsPlayerControlled() && HealthComponent) {
+		HealthBarWidget->SetHealthPercent(HealthComponent->GetHealthPercent());
 	}
 }
 

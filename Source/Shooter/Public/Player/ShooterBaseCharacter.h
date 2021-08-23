@@ -8,7 +8,7 @@
 
 
 class UShooterHealthComponent;
-class UTextRenderComponent;
+class UWidgetComponent;
 
 class AShooterBaseWeapon;
 class UShooterWeaponComponent;
@@ -66,7 +66,7 @@ protected:
 	UShooterHealthComponent *HealthComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health")
-	UTextRenderComponent *HealthTextComponent;
+	UWidgetComponent *HealthBarComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
 	UShooterWeaponComponent *WeaponComponent;

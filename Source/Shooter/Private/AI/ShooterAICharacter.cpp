@@ -6,7 +6,9 @@
 #include "AI/ShooterAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "Components/ShooterAIWeaponComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "UI/ShooterHealthBarWidget.h"
 
 AShooterAICharacter::AShooterAICharacter(
 	FObjectInitializer const &ObjInit
