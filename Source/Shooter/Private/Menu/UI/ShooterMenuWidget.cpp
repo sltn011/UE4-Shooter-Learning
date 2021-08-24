@@ -26,7 +26,18 @@ bool UShooterMenuWidget::Initialize(
     return ParentVal;
 }
 
-void UShooterMenuWidget::OnPlaySelectedLevel(
+void UShooterMenuWidget::OnAnimationFinished_Implementation(
+    UWidgetAnimation const *Animation
+)
+{
+    if (Animation != LoadingAnimation) {
+        return;
+    }
+
+    LoadAndPlaySelectedLevel();
+}
+
+void UShooterMenuWidget::LoadAndPlaySelectedLevel(
 )
 {
     if (!LevelSelector) {
@@ -55,6 +66,14 @@ void UShooterMenuWidget::OnPlaySelectedLevel(
     }
 
     UGameplayStatics::OpenLevel(World, SelectedLevelName);
+}
+
+void UShooterMenuWidget::OnPlaySelectedLevel(
+)
+{
+    if (!IsAnimationPlaying(LoadingAnimation)) {
+        PlayAnimation(LoadingAnimation);
+    }
 }
 
 void UShooterMenuWidget::OnQuitGame(

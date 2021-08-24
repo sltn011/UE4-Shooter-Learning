@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/ShooterBaseWidget.h"
 #include "ShooterCoreTypes.h"
 #include "ShooterPlayerHUDWidget.generated.h"
 
 
 UCLASS()
-class SHOOTER_API UShooterPlayerHUDWidget : public UUserWidget
+class SHOOTER_API UShooterPlayerHUDWidget : public UShooterBaseWidget
 {
 
 	GENERATED_BODY()

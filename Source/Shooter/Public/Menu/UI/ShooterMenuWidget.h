@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/ShooterBaseWidget.h"
 #include "ShooterMenuWidget.generated.h"
 
 class UButton;
 class UShooterLevelSelectorWidget;
 
 UCLASS()
-class SHOOTER_API UShooterMenuWidget : public UUserWidget
+class SHOOTER_API UShooterMenuWidget : public UShooterBaseWidget
 {
 
 	GENERATED_BODY()
@@ -22,6 +22,13 @@ public:
 
 protected:
 
+	virtual void OnAnimationFinished_Implementation(
+		UWidgetAnimation const *Animation
+	) override;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation *LoadingAnimation;
+
 	UPROPERTY(meta = (BindWidget))
 	UShooterLevelSelectorWidget *LevelSelector;
 
@@ -32,6 +39,9 @@ protected:
 	UButton *QuitGameButton;
 
 private:
+
+	void LoadAndPlaySelectedLevel(
+	);
 
 	UFUNCTION()
 	void OnPlaySelectedLevel(

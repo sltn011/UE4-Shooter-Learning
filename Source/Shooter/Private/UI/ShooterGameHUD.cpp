@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Player/ShooterPlayerController.h"
 #include "ShooterGameModeBase.h"
+#include "UI/ShooterBaseWidget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterGameHUD, All, All);
 
@@ -37,6 +38,10 @@ void AShooterGameHUD::SetUIOverlayWidget(
         CurrentWidget = UIOverlaysWidgetsMap[UIOverlay];
         if (CurrentWidget) {
             CurrentWidget->AddToViewport();
+            UShooterBaseWidget *AnimatedCurrentWidget = Cast<UShooterBaseWidget>(CurrentWidget);
+            if (AnimatedCurrentWidget) {
+                AnimatedCurrentWidget->Show();
+            }
         }
     }
     else {
@@ -104,6 +109,10 @@ void AShooterGameHUD::OnGameStateChange(
 
     if (CurrentWidget) {
         CurrentWidget->AddToViewport();
+        UShooterBaseWidget *AnimatedCurrentWidget = Cast<UShooterBaseWidget>(CurrentWidget);
+        if (AnimatedCurrentWidget) {
+            AnimatedCurrentWidget->Show();
+        }
     }
 }
 

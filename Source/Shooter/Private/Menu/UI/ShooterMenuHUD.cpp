@@ -3,7 +3,7 @@
 
 #include "Menu/UI/ShooterMenuHUD.h"
 
-#include "Blueprint/UserWidget.h"
+#include "UI/ShooterBaseWidget.h"
 
 void AShooterMenuHUD::BeginPlay(
 )
@@ -11,9 +11,10 @@ void AShooterMenuHUD::BeginPlay(
     Super::BeginPlay();
 
     if (MenuWidgetClass) {
-        UUserWidget *MenuWidget = CreateWidget<UUserWidget>(GetWorld(), MenuWidgetClass);
+        UShooterBaseWidget *MenuWidget = CreateWidget<UShooterBaseWidget>(GetWorld(), MenuWidgetClass);
         if (MenuWidgetClass) {
             MenuWidget->AddToViewport();
+            MenuWidget->Show();
         }
     }
 }

@@ -22,12 +22,6 @@ public:
 	FName GetMenuLevelName(
 	) const;
 
-	FName GetTestLevelName(
-	) const;
-
-	FName GetDustIILevelName(
-	) const;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Levels")
 	TArray<FLevelData> Levels;
 
@@ -35,11 +29,5 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Levels")
 	FName MenuLevelName = NAME_None;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Levels")
-	FName TestLevelName = NAME_None;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Levels")
-	FName DustIILevelName = NAME_None;
 	
 };
