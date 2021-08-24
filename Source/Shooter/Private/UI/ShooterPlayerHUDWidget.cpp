@@ -98,6 +98,10 @@ void UShooterPlayerHUDWidget::OnHealthChanged(
 {
     if (HealthDelta < 0.0f) {
         OnTakeDamage(); // BP implementable event
+
+        if (!IsAnimationPlaying(OnDamaged)) {
+            PlayAnimation(OnDamaged);
+        }
     }
 }
 

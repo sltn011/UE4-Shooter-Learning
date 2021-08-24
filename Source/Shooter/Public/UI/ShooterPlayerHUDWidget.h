@@ -50,6 +50,11 @@ public:
 	void OnTakeDamage( // No definition needed
 	);
 
+protected:
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation *OnDamaged;
+
 private:
 
 	void OnHealthChanged(
