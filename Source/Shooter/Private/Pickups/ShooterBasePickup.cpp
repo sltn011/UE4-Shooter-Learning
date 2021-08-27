@@ -5,6 +5,8 @@
 
 #include "Components/SphereComponent.h"
 #include "Player/ShooterBaseCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "TimerManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterBasePickup, All, All)
@@ -78,6 +80,8 @@ void AShooterBasePickup::NotifyActorBeginOverlap(
 
 	UE_LOG(LogShooterBasePickup, Display, TEXT("Pickup %s taken by %s"), *GetName(), PickerPawn ? *PickerPawn->GetName() : TEXT("NULL-Pawn"));
 	PickupEffect(PickerPawn);
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, GetActorLocation());
 
 	OnBeingPicked();
 }

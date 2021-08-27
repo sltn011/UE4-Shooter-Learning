@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Sound/SoundCue.h"
 #include "Weapon/Components/ShooterWeaponFXComponent.h"
 
 AShooterVFXProjectile::AShooterVFXProjectile(
@@ -42,6 +43,8 @@ void AShooterVFXProjectile::AtImpactLocation(
     UGameplayStatics::ApplyRadialDamage(World, DamageAmount, ImpactLocation, AreaRadius, UDamageType::StaticClass(), {}, this, GetOwnerController(), DoFullDamage);
 
     WeaponFXComponent->PlayImpactFX(Hit);
+
+    UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, ImpactLocation);
 
     AfterImpactLifeTime > 0.0f ? OnImpactDeactivate() : Destroy();
 }

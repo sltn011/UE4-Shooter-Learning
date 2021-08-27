@@ -52,6 +52,9 @@ protected:
 	virtual void OnRoundEnd(
 	) override;
 
+	virtual void OnGameEnd(
+	) override;
+
 	virtual void InitTeamsInfo(
 	) override;
 
@@ -71,6 +74,9 @@ protected:
 
 	void ShuffleArray(
 		TArray<int> &Array
+	);
+
+	void UpdateScore(
 	);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = 0))

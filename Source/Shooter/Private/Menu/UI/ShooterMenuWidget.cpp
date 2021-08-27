@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Menu/UI/ShooterLevelSelectorWidget.h"
 #include "ShooterGameInstance.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterMenuWidget, All, All);
 
@@ -74,6 +75,7 @@ void UShooterMenuWidget::OnPlaySelectedLevel(
     if (!IsAnimationPlaying(LoadingAnimation)) {
         PlayAnimation(LoadingAnimation);
     }
+    UGameplayStatics::PlaySound2D(GetWorld(), StartGameSound);
 }
 
 void UShooterMenuWidget::OnQuitGame(

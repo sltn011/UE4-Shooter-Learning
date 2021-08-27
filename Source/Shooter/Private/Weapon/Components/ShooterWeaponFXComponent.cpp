@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Sound/SoundCue.h"
 
 UShooterWeaponFXComponent::UShooterWeaponFXComponent(
 )
@@ -33,6 +34,8 @@ void UShooterWeaponFXComponent::PlayImpactFX(
 	}
 
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(World, ImpactData.Effect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactData.ImpactSound, Hit.ImpactPoint);
+
 	UDecalComponent *Decal = UGameplayStatics::SpawnDecalAtLocation(
 		World, 
 		ImpactData.ImpactDecal.Material, 

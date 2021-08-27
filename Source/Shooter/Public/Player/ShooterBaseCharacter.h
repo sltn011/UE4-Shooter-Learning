@@ -7,11 +7,11 @@
 #include "ShooterBaseCharacter.generated.h"
 
 
+class AShooterBaseWeapon;
 class UShooterHealthComponent;
 class UShooterHealthBarWidgetComponent;
-
-class AShooterBaseWeapon;
 class UShooterWeaponComponent;
+class USoundCue;
 
 
 UCLASS()
@@ -82,6 +82,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Material")
 	FName MaterialColorName = "Paint Color";
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue *DeathSound;
 
 	bool bIsMovingForward = false;
 

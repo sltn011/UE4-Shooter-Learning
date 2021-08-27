@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "ShooterBaseWidget.generated.h"
 
+class USoundCue;
 
 UCLASS()
 class SHOOTER_API UShooterBaseWidget : public UUserWidget
@@ -22,5 +23,7 @@ protected:
 
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation *ShowAnimation;
-	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue *ShowSound;
 };

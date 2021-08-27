@@ -45,6 +45,9 @@ protected:
 		EShooterGameUIOverlay UIOverlay
 	);
 
+	void OnToggleSound(
+	);
+
 	bool GetCurrentGameState(
 		EShooterGameState &State
 	) const;

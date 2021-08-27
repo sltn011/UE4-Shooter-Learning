@@ -9,8 +9,10 @@
 #include "Components/ShooterWeaponComponent.h"
 #include "Components/ShooterHealthBarWidgetComponent.h"
 #include "GameFramework/Controller.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/ShooterPlayerState.h"
 #include "ShooterGameModeBase.h"
+#include "Sound/SoundCue.h"
 #include "UI/ShooterHealthBarWidget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogShooterBaseCharacter, All, All);
@@ -153,6 +155,8 @@ void AShooterBaseCharacter::OnDeath(
 	if (HealthBarComponent) {
 		HealthBarComponent->SetVisibility(false);
 	}
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
 
 	SetLifeSpan(LifeSpanAfterDeath);
 }

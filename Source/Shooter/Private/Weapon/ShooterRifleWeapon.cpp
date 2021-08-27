@@ -3,10 +3,13 @@
 
 #include "Weapon/ShooterRifleWeapon.h"
 
+#include "Components/AudioComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Sound/SoundCue.h"
 #include "Weapon/Components/ShooterWeaponFXComponent.h"
 
 AShooterRifleWeapon::AShooterRifleWeapon(
@@ -21,7 +24,14 @@ void AShooterRifleWeapon::StartShooting(
 	if (!GetWorld() || FMath::IsNearlyZero(ShotsPerMinute)) {
 		return;
 	}
-	InitMuzzleFX();
+
+	if (IsAmmoEmpty()) {
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), NoAmmoSound, GetActorLocation());
+		StopShooting();
+		return;
+	}
+
+	InitFX();
 	GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &AShooterRifleWeapon::MakeShot, 60.0f / ShotsPerMinute, true, 0.0f);
 }
 
@@ -31,7 +41,12 @@ void AShooterRifleWeapon::StopShooting(
 	if (!GetWorld()) {
 		return;
 	}
-	SetMuzzleFXVisibility(false);
+
+	if (!GetWorldTimerManager().IsTimerActive(ShootingTimerHandle)) {
+		return;
+	}
+
+	SetFXEnabled(false);
 	GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
 }
 
@@ -51,6 +66,7 @@ void AShooterRifleWeapon::MakeShot(
 )
 {
 	if (IsAmmoEmpty()) {
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), NoAmmoSound, GetActorLocation());
 		StopShooting();
 		return;
 	}
@@ -146,26 +162,42 @@ bool AShooterRifleWeapon::DealDamage(
 	return true;
 }
 
-void AShooterRifleWeapon::InitMuzzleFX(
+void AShooterRifleWeapon::InitFX(
 )
 {
 	if (!MuzzleFXComponent) {
 		MuzzleFXComponent = SpawnMuzzleFX();
 	}
 
-	SetMuzzleFXVisibility(true);
-}
-
-void AShooterRifleWeapon::SetMuzzleFXVisibility(
-	bool bIsVisible
-)
-{
-	if (!MuzzleFXComponent) {
-		return;
+	if (!FireAudioComponent) {
+		if (Cast<APawn>(GetOwner()) && Cast<APawn>(GetOwner())->GetController()) {
+			bool IsPlayer = Cast<APawn>(GetOwner())->GetController()->IsPlayerController();
+			FireAudioComponent = UGameplayStatics::SpawnSoundAttached(IsPlayer ? FirePlayerSound : FireBotSound, WeaponMesh, MuzzleSocketName);
+		}
 	}
 
-	MuzzleFXComponent->SetPaused(!bIsVisible);
-	MuzzleFXComponent->SetVisibility(bIsVisible);
+	SetFXEnabled(true);
+}
+
+void AShooterRifleWeapon::SetFXEnabled(
+	bool bIsEnabled
+)
+{
+	if (MuzzleFXComponent) {
+		MuzzleFXComponent->SetPaused(!bIsEnabled);
+		MuzzleFXComponent->SetVisibility(bIsEnabled);
+	}
+
+	if (FireAudioComponent) {
+		if (bIsEnabled) {
+			FireAudioComponent->Play();
+		}
+		else {
+			FireAudioComponent->FadeOut(0.1f, 0.0f);
+			FireAudioComponent = nullptr;
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireStopSound, GetActorLocation(), 1.0f, 1.0f, 0.25f);
+		}
+	}
 }
 
 void AShooterRifleWeapon::SpawnTraceFX(

@@ -8,6 +8,6 @@ void AShooterMenuPlayerController::BeginPlay(
 {
     Super::BeginPlay();
 
-    SetInputMode(FInputModeUIOnly());
+    SetInputMode(FInputModeGameAndUI());
     bShowMouseCursor = true;
 }

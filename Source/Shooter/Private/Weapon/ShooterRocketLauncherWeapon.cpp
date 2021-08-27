@@ -3,6 +3,8 @@
 
 #include "Weapon/ShooterRocketLauncherWeapon.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "Weapon/ShooterBaseProjectile.h"
 
 void AShooterRocketLauncherWeapon::StartShooting(
@@ -23,6 +25,7 @@ void AShooterRocketLauncherWeapon::MakeShot(
 )
 {
 	if (IsAmmoEmpty()) {
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), NoAmmoSound, GetActorLocation());
 		return;
 	}
 
@@ -55,6 +58,6 @@ void AShooterRocketLauncherWeapon::MakeShot(
 	Projectile->FinishSpawning(SpawnTransform);
 
 	DecreaseAmmo();
-
+	UGameplayStatics::SpawnSoundAttached(FireSound, WeaponMesh, MuzzleSocketName);
 	SpawnMuzzleFX();
 }

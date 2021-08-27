@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
+#include "Player/ShooterPlayerController.h"
 #include "ShooterMenuPlayerController.generated.h"
 
 
 UCLASS()
-class SHOOTER_API AShooterMenuPlayerController : public APlayerController
+class SHOOTER_API AShooterMenuPlayerController : public AShooterPlayerController
 {
 
 	GENERATED_BODY()

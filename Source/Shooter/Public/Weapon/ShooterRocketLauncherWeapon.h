@@ -30,4 +30,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectiles")
 	TSubclassOf<AShooterBaseProjectile> RocketProjectileClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue *FireSound;
+
 };

@@ -6,9 +6,11 @@
 #include "GameFramework/Actor.h"
 #include "ShooterBaseProjectile.generated.h"
 
+class UAudioComponent;
 class UProjectileMovementComponent;
 class UShooterWeaponFXComponent;
 class USphereComponent;
+class USoundCue;
 
 UCLASS()
 class SHOOTER_API AShooterBaseProjectile : public AActor
@@ -50,6 +52,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
 	UProjectileMovementComponent *MovementComponent;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Sound")
+	UAudioComponent *AudioComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile", meta = (ClampMin = 0.0f))
 	float TimeToLive = 5.0f;
 
@@ -64,5 +69,8 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "VFX")
 	UShooterWeaponFXComponent *WeaponFXComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue *ImpactSound;
 
 };

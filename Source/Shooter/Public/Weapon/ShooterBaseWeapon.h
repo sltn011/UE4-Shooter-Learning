@@ -11,6 +11,7 @@ class APlayerController;
 class UNiagaraComponent;
 class UNiagaraSystem;
 class USkeletalMeshComponent;
+class USoundCue;
 
 UCLASS()
 class SHOOTER_API AShooterBaseWeapon : public AActor
@@ -114,6 +115,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
 	UNiagaraSystem *MuzzleFX;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue *NoAmmoSound;
 
 private:
 

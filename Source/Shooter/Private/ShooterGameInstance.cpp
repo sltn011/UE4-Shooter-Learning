@@ -3,6 +3,8 @@
 
 #include "ShooterGameInstance.h"
 
+#include "Sound/ShooterSoundFuncLib.h"
+
 void UShooterGameInstance::Init(
 )
 {
@@ -15,4 +17,10 @@ FName UShooterGameInstance::GetMenuLevelName(
 ) const
 {
     return MenuLevelName;
+}
+
+void UShooterGameInstance::ToggleSound(
+)
+{
+    UShooterSoundFuncLib::ToggleSoundClassVolume(MasterSoundClass);
 }

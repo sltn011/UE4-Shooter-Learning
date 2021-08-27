@@ -112,6 +112,7 @@ enum class EAmmoRestoreType : uint8 {
  */
 
 class UNiagaraSystem;
+class USoundCue;
 
 USTRUCT(BlueprintType)
 struct FDecalData {
@@ -146,6 +147,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FDecalData ImpactDecal;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	USoundCue *ImpactSound;
 };
 
 

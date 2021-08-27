@@ -114,10 +114,6 @@ bool AShooterGameModeCS::GetTeamScore(
     int32 &TeamScore
 )
 {
-    if (RoundCountdown == 0) {
-        return false;
-    }
-
     switch (TeamID) {
     case 1:
         TeamScore = Team1Score;
@@ -165,23 +161,19 @@ void AShooterGameModeCS::OnRoundStart(
 void AShooterGameModeCS::OnRoundEnd(
 )
 {
-    // Do nothing in case of draw
-    if (Team1AlivePlayersNum != Team2AlivePlayersNum) {
-        if (Team1AlivePlayersNum == 0) {
-            ++Team2Score;
-        }
-        else if (Team2AlivePlayersNum == 0) {
-            ++Team1Score;
-        }
-        else {
-            Team1AlivePlayersNum > Team2AlivePlayersNum ? ++Team1Score : ++Team2Score;
-        }
-    }
+    UpdateScore();
 
     SwapTeams();
     ShuffleSpawnPoints();
 
     Super::OnRoundEnd();
+}
+
+void AShooterGameModeCS::OnGameEnd(
+)
+{
+    UpdateScore();
+    Super::OnGameEnd();
 }
 
 void AShooterGameModeCS::InitTeamsInfo()
@@ -252,5 +244,22 @@ void AShooterGameModeCS::ShuffleArray(
         int32 IndexA = FMath::Rand() % Array.Num();
         int32 IndexB = FMath::Rand() % Array.Num();
         Array.Swap(IndexA, IndexB);
+    }
+}
+
+void AShooterGameModeCS::UpdateScore(
+)
+{
+    // Do nothing in case of draw
+    if (Team1AlivePlayersNum != Team2AlivePlayersNum) {
+        if (Team1AlivePlayersNum == 0) {
+            ++Team2Score;
+        }
+        else if (Team2AlivePlayersNum == 0) {
+            ++Team1Score;
+        }
+        else {
+            Team1AlivePlayersNum > Team2AlivePlayersNum ? ++Team1Score : ++Team2Score;
+        }
     }
 }

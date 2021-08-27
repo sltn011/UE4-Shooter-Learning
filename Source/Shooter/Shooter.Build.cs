@@ -7,7 +7,7 @@ public class Shooter : ModuleRules
 	public Shooter(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
+
 		PublicDependencyModuleNames.AddRange(new string[] 
 		{ 
 			"Core", 
@@ -17,7 +17,9 @@ public class Shooter : ModuleRules
 			"Niagara",
 			"PhysicsCore",
 			"GameplayTasks",
-			"NavigationSystem"
+			"NavigationSystem",
+			"UMG",
+			"AIModule"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
@@ -38,7 +40,8 @@ public class Shooter : ModuleRules
 			"Shooter/Public/AI/Contexts",
 			"Shooter/Public/AI/Decorators",
 			"Shooter/Public/Menu",
-			"Shooter/Public/Menu/UI"
+			"Shooter/Public/Menu/UI",
+			"Shooter/Public/Sound"
 		});
 
 		// Uncomment if you are using Slate UI

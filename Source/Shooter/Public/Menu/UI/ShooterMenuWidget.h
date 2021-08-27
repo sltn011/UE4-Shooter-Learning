@@ -8,6 +8,7 @@
 
 class UButton;
 class UShooterLevelSelectorWidget;
+class USoundCue;
 
 UCLASS()
 class SHOOTER_API UShooterMenuWidget : public UShooterBaseWidget
@@ -37,6 +38,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UButton *QuitGameButton;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue *StartGameSound;
 
 private:
 

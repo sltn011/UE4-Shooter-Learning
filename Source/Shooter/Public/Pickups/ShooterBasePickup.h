@@ -8,6 +8,7 @@
 
 class UStaticMeshComponent;
 class USphereComponent;
+class USoundCue;
 
 UCLASS()
 class SHOOTER_API AShooterBasePickup : public AActor
@@ -67,6 +68,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn", meta = (ClampMin = 0.0f, EditCondition = "bIsRespawnable"))
 	float DelayBeforePickingAfterRespawn = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue *PickupSound;
 
 private:
 

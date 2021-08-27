@@ -6,6 +6,7 @@
 #include "Weapon/ShooterBaseWeapon.h"
 #include "ShooterRifleWeapon.generated.h"
 
+class UAudioComponent;
 class UNiagaraComponent;
 class UNiagaraSystem;
 class UShooterWeaponFXComponent;
@@ -61,13 +62,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
 	FString TraceTargetName = TEXT("TraceTarget");
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	UAudioComponent *FireAudioComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue *FirePlayerSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue *FireBotSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue *FireStopSound;
+
 private:
 
-	void InitMuzzleFX(
+	void InitFX(
 	);
 
-	void SetMuzzleFXVisibility(
-		bool bIsVisible
+	void SetFXEnabled(
+		bool bIsEnabled
 	);
 
 	void SpawnTraceFX(

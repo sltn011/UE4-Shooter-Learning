@@ -4,6 +4,7 @@
 #include "Player/ShooterPlayerController.h"
 
 #include "Components/ShooterRespawnComponent.h"
+#include "ShooterGameInstance.h"
 #include "ShooterGameModeBase.h"
 #include "UI/ShooterGameHUD.h"
 
@@ -45,6 +46,7 @@ void AShooterPlayerController::SetupInputComponent(
     InputComponent->BindAction("TogglePause", EInputEvent::IE_Pressed, this, &AShooterPlayerController::OnTogglePause).bExecuteWhenPaused = true;
     InputComponent->BindAction("ToggleStatsTable", EInputEvent::IE_Pressed, this, &AShooterPlayerController::OnToggleStatsTable);
     InputComponent->BindAction("ToggleStatsTable", EInputEvent::IE_Released, this, &AShooterPlayerController::OnToggleStatsTable);
+    InputComponent->BindAction("ToggleSound", EInputEvent::IE_Pressed, this, &AShooterPlayerController::OnToggleSound).bExecuteWhenPaused = true;
 }
 
 void AShooterPlayerController::OnTogglePause(
@@ -117,14 +119,30 @@ void AShooterPlayerController::OnGameUIOverlaySet(
     EShooterGameUIOverlay UIOverlay
 )
 {
-    if (UIOverlay == EShooterGameUIOverlay::PlayersStatsTable) {
-        SetInputMode(FInputModeGameAndUI());
-        bShowMouseCursor = true;
+    //if (UIOverlay == EShooterGameUIOverlay::PlayersStatsTable) {
+    //    SetInputMode(FInputModeGameAndUI());
+    //    bShowMouseCursor = true;
+    //}
+    //else {
+    //    SetInputMode(FInputModeGameOnly());
+    //    bShowMouseCursor = false;
+    //}
+}
+
+void AShooterPlayerController::OnToggleSound(
+)
+{
+    UWorld *World = GetWorld();
+    if (!World) {
+        return;
     }
-    else {
-        SetInputMode(FInputModeGameOnly());
-        bShowMouseCursor = false;
+
+    UShooterGameInstance *GameInstance = World->GetGameInstance<UShooterGameInstance>();
+    if (!GameInstance) {
+        return;
     }
+
+    GameInstance->ToggleSound();
 }
 
 bool AShooterPlayerController::GetCurrentGameState(
