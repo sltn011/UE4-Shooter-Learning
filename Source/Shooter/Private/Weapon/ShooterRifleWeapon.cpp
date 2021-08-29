@@ -187,7 +187,9 @@ bool AShooterRifleWeapon::DealDamage(
 		return false;
 	}
 
-	HitActor->TakeDamage(DamagePerShot, {}, GetOwnerController(), this);
+	FPointDamageEvent DamageEvent{};
+	DamageEvent.HitInfo = HitResult;
+	HitActor->TakeDamage(DamagePerShot, DamageEvent, GetOwnerController(), this);
 	return true;
 }
 

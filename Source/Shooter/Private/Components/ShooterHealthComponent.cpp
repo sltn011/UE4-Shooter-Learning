@@ -6,8 +6,10 @@
 #include "Camera/CameraShake.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/Pawn.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "ShooterGameModeBase.h"
 #include "ShooterUtils.h"
 #include "TimerManager.h"
@@ -71,12 +73,43 @@ void UShooterHealthComponent::BeginPlay(
 	
 	AActor *Owner = GetOwner();
 	if (Owner) {
+		Owner->OnTakePointDamage.AddDynamic(this, &UShooterHealthComponent::OnTakePointDamage);
+		Owner->OnTakeRadialDamage.AddDynamic(this, &UShooterHealthComponent::OnTakeRadialDamage);
 		Owner->OnTakeAnyDamage.AddDynamic(this, &UShooterHealthComponent::OnTakeAnyDamage);
 	}
 	else {
 		UE_LOG(LogShooterHealthComponent, Error, TEXT("Error recieving component's Owner!"));
 		checkNoEntry();
 	}
+}
+
+void UShooterHealthComponent::OnTakePointDamage(
+	AActor *DamagedActor,
+	float Damage,
+	AController *InstigatedBy,
+	FVector HitLocation,
+	UPrimitiveComponent *FHitComponent,
+	FName BoneName,
+	FVector ShotFromDirection,
+	UDamageType const *DamageType,
+	AActor *DamageCauser
+)
+{
+	Damage *= GetPointDamageModifier(DamagedActor, BoneName);
+	ApplyDamage(InstigatedBy, Damage);
+}
+
+void UShooterHealthComponent::OnTakeRadialDamage(
+	AActor *DamagedActor,
+	float Damage,
+	UDamageType const *DamageType,
+	FVector Origin,
+	FHitResult HitInfo,
+	AController *InstigatedBy,
+	AActor *DamageCauser
+)
+{
+	ApplyDamage(InstigatedBy, Damage);
 }
 
 void UShooterHealthComponent::OnTakeAnyDamage(
@@ -87,34 +120,7 @@ void UShooterHealthComponent::OnTakeAnyDamage(
 	AActor *DamageCauser
 )
 {
-	if (Damage <= 0 || IsDead() || !GetWorld()) {
-		return;
-	}
-
-	APawn *DamagedPawn = Cast<APawn>(DamagedActor);
-	if (!DamagedPawn) {
-		return;
-	}
-
-	if (!ShooterUtils::AreEnemies(DamagedPawn->GetController(), InstigatedBy)) {
-		return;
-	}
-
-	SetHealth(Health - Damage);
-
-	PlayCameraShake(OnDamageCameraShake);
-
-	GetWorld()->GetTimerManager().ClearTimer(AutoHealTimerHandle);
-
-	if (IsDead()) {
-		RegisterKill(InstigatedBy);
-		OnDeath.Broadcast();
-	}
-	else if (bAutoHeal) {
-		if (GetWorld()) {
-			GetWorld()->GetTimerManager().SetTimer(AutoHealTimerHandle, this, &UShooterHealthComponent::AutoHeal, AutoHealUpdateTime, true, AutoHealStartDelay);
-		}
-	}
+	
 }
 
 void UShooterHealthComponent::SetHealth(
@@ -187,4 +193,64 @@ void UShooterHealthComponent::RegisterKill(
 	AController *Victim = OwnerPawn->GetController();
 
 	GameMode->RegisterKill(Killer, Victim);
+}
+
+void UShooterHealthComponent::ApplyDamage(
+	AController *InstigatedBy,
+	float Damage
+)
+{
+	UWorld *World = GetWorld();
+	if (Damage <= 0 || IsDead() || !World) {
+		return;
+	}
+
+	APawn *DamagedPawn = Cast<APawn>(GetOwner());
+	if (!DamagedPawn) {
+		return;
+	}
+
+	if (!ShooterUtils::AreEnemies(DamagedPawn->GetController(), InstigatedBy)) {
+		return;
+	}
+
+	SetHealth(Health - Damage);
+
+	PlayCameraShake(OnDamageCameraShake);
+
+	World->GetTimerManager().ClearTimer(AutoHealTimerHandle);
+
+	if (IsDead()) {
+		RegisterKill(InstigatedBy);
+		OnDeath.Broadcast();
+	}
+	else if (bAutoHeal) {
+		World->GetTimerManager().SetTimer(AutoHealTimerHandle, this, &UShooterHealthComponent::AutoHeal, AutoHealUpdateTime, true, AutoHealStartDelay);
+	}
+}
+
+float UShooterHealthComponent::GetPointDamageModifier(
+	AActor *DamagedActor,
+	FName const &DamagedBoneName
+) const
+{
+	float DamageModifier = 1.0f;
+
+	ACharacter *DamagedCharacter = Cast<ACharacter>(DamagedActor);
+	if (!DamagedCharacter || !DamagedCharacter->GetMesh()) {
+		return DamageModifier;
+	}
+
+	FBodyInstance *BodyInstance = DamagedCharacter->GetMesh()->GetBodyInstance(DamagedBoneName);
+	if (!BodyInstance) {
+		return DamageModifier;
+	}
+
+	UPhysicalMaterial *DamagedPartMaterial = BodyInstance->GetSimplePhysicalMaterial();
+
+	if (DamageModifiers.Contains(DamagedPartMaterial)) {
+		DamageModifier = DamageModifiers[DamagedPartMaterial];
+	}
+
+	return DamageModifier;
 }

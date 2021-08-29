@@ -62,7 +62,34 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
 	TSubclassOf<UCameraShakeBase> OnDamageCameraShake;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
+	TMap<UPhysicalMaterial *, float> DamageModifiers;
+
 private:
+
+	UFUNCTION()
+	void OnTakePointDamage(
+		AActor *DamagedActor,
+		float Damage,
+		AController *InstigatedBy,
+		FVector HitLocation,
+		UPrimitiveComponent *FHitComponent,
+		FName BoneName,
+		FVector ShotFromDirection,
+		UDamageType const *DamageType,
+		AActor *DamageCauser
+	);
+
+	UFUNCTION()
+	void OnTakeRadialDamage(
+		AActor *DamagedActor,
+		float Damage,
+		UDamageType const *DamageType,
+		FVector Origin,
+		FHitResult HitInfo,
+		AController *InstigatedBy,
+		AActor *DamageCauser
+	);
 
 	UFUNCTION()
 	void OnTakeAnyDamage(
@@ -87,6 +114,16 @@ private:
 	void RegisterKill(
 		AController *Killer
 	);
+
+	void ApplyDamage(
+		AController *InstigatedBy,
+		float Damage
+	);
+
+	float GetPointDamageModifier(
+		AActor *DamagedActor,
+		FName const &DamagedBoneName
+	) const;
 
 	float Health = 0.0f;
 
