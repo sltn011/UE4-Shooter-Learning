@@ -66,6 +66,16 @@ void UShooterWeaponComponent::ReloadWeapon(
 	Reload();
 }
 
+void UShooterWeaponComponent::ZoomWithCurrentWeapon(
+	bool bEnable
+)
+{
+	if (!CurrentWeapon) {
+		return;
+	}
+	CurrentWeapon->Zoom(bEnable);
+}
+
 bool UShooterWeaponComponent::GetCurrentWeaponUIData(
 	FWeaponUIData &UIData
 ) const
@@ -282,7 +292,10 @@ void UShooterWeaponComponent::EquipWeapon(
 	}
 	UAnimMontage *WeaponReloadMontage = SelectedWeaponData ? SelectedWeaponData->ReloadAnimMontage : nullptr;
 
-	StopShooting();
+	if (CurrentWeapon) {
+		StopShooting();
+		CurrentWeapon->OnUnequip();
+	}
 
 	if (CurrentWeapon != Weapon) { // If equipping not current weapon - put old one on the back
 		AttachWeaponToSocket(CurrentWeapon, SkeletalMesh, WeaponArmorySocketName); // Place current weapon on the back

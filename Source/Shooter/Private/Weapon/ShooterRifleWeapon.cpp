@@ -50,6 +50,28 @@ void AShooterRifleWeapon::StopShooting(
 	GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
 }
 
+void AShooterRifleWeapon::Zoom(
+	bool bEnable
+)
+{
+	Super::Zoom(bEnable);
+
+	APlayerController *Controller = Cast<APlayerController>(GetOwnerController());
+	if (!Controller || !Controller->PlayerCameraManager) {
+		return;
+	}
+
+	Controller->PlayerCameraManager->SetFOV(bEnable ? ZoomedFOV : DefaultFOV);
+	CurrentBulletSpread = bEnable ? ZoomedBulletSpreadDegrees : DefaultBulletSpreadDegrees;
+}
+
+void AShooterRifleWeapon::OnUnequip(
+)
+{
+	Super::OnUnequip();
+	Zoom(false);
+}
+
 void AShooterRifleWeapon::BeginPlay(
 )
 {
@@ -59,7 +81,14 @@ void AShooterRifleWeapon::BeginPlay(
 
 	check(DamagePerShot >= 0.0f);
 	check(ShotsPerMinute > 0.0f);
-	check(BulletSpreadDegrees >= 0.0f);
+	check(DefaultBulletSpreadDegrees >= 0.0f);
+
+	CurrentBulletSpread = DefaultBulletSpreadDegrees;
+
+	APlayerController *Controller = Cast<APlayerController>(GetOwnerController());
+	if (Controller && Controller->PlayerCameraManager) {
+		DefaultFOV = Controller->PlayerCameraManager->GetFOVAngle();
+	}
 }
 
 void AShooterRifleWeapon::MakeShot(
@@ -140,7 +169,7 @@ bool AShooterRifleWeapon::GetTraceData(
 	// Trace data for line from muzzle
 	FVector const MuzzleLocation = GetMuzzleWorldLocation();
 	FVector const MuzzleDirection = (CameraShotEndPoint - MuzzleLocation).GetSafeNormal();
-	float const SpreadRadians = FMath::DegreesToRadians(BulletSpreadDegrees * 0.5f);
+	float const SpreadRadians = FMath::DegreesToRadians(CurrentBulletSpread * 0.5f);
 	FVector const MuzzleShotDirection = FMath::VRandCone(MuzzleDirection, SpreadRadians);
 	FVector const MuzzleShotEnd = MuzzleLocation + MuzzleShotDirection * BulletMaxDistance;
 
@@ -158,7 +187,7 @@ bool AShooterRifleWeapon::DealDamage(
 		return false;
 	}
 
-	HitActor->TakeDamage(DamagePerShot, {}, GetPlayerController(), this);
+	HitActor->TakeDamage(DamagePerShot, {}, GetOwnerController(), this);
 	return true;
 }
 

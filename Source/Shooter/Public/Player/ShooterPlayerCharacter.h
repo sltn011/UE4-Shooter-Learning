@@ -55,6 +55,10 @@ private:
 		float Scale
 	);
 
+	void ZoomWithCurrentWeapon(
+		bool bEnable
+	);
+
 	UFUNCTION()
 	void OnCameraBeginOverlap(
 		UPrimitiveComponent *OverlappedComponent,

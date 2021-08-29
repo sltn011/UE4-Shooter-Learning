@@ -27,6 +27,13 @@ public:
 	virtual void StopShooting(
 	) override;
 
+	virtual void Zoom(
+		bool bEnable
+	) override;
+
+	virtual void OnUnequip(
+	) override;
+
 protected:
 
 	virtual void BeginPlay(
@@ -51,7 +58,13 @@ protected:
 	float ShotsPerMinute = 600.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClampMin = 0.0f))
-	float BulletSpreadDegrees = 2.5f;
+	float DefaultBulletSpreadDegrees = 2.5f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Shooting", meta = (ClampMin = 0.0f))
+	float ZoomedBulletSpreadDegrees = 2.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Shooting")
+	float ZoomedFOV = 50.0f;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "VFX")
 	UShooterWeaponFXComponent *WeaponFXComponent;
@@ -93,4 +106,6 @@ private:
 
 	FTimerHandle ShootingTimerHandle;
 
+	float DefaultFOV;
+	float CurrentBulletSpread;
 };

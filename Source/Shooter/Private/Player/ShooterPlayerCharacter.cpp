@@ -63,6 +63,10 @@ void AShooterPlayerCharacter::SetupPlayerInputComponent(
 
 	PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::EquipNextWeapon);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &UShooterWeaponComponent::ReloadWeapon);
+
+	DECLARE_DELEGATE_OneParam(FZoomWeaponDelegate, bool);
+	PlayerInputComponent->BindAction<FZoomWeaponDelegate>("Zoom", IE_Pressed, this, &AShooterPlayerCharacter::ZoomWithCurrentWeapon, true);
+	PlayerInputComponent->BindAction<FZoomWeaponDelegate>("Zoom", IE_Released, this, &AShooterPlayerCharacter::ZoomWithCurrentWeapon, false);
 }
 
 void AShooterPlayerCharacter::BeginPlay(
@@ -83,6 +87,8 @@ void AShooterPlayerCharacter::OnDeath(
 {
 	Super::OnDeath();
 
+	ZoomWithCurrentWeapon(false);
+
 	if (Controller) {
 		Controller->ChangeState(NAME_Spectating);
 	}
@@ -101,6 +107,16 @@ void AShooterPlayerCharacter::MoveRight(
 )
 {
 	AddMovementInput(GetActorRightVector(), Scale);
+}
+
+void AShooterPlayerCharacter::ZoomWithCurrentWeapon(
+	bool bEnable
+)
+{
+	if (!WeaponComponent) {
+		return;
+	}
+	WeaponComponent->ZoomWithCurrentWeapon(bEnable);
 }
 
 void AShooterPlayerCharacter::OnCameraBeginOverlap(

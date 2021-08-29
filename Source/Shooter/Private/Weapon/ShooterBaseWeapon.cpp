@@ -69,6 +69,18 @@ void AShooterBaseWeapon::Reload(
 	CurrentAmmo.BulletsInClip += BulletsCanBeAdded;
 }
 
+void AShooterBaseWeapon::Zoom(
+	bool bEnable
+)
+{
+
+}
+
+void AShooterBaseWeapon::OnUnequip(
+)
+{
+}
+
 void AShooterBaseWeapon::AddAmmo(
 	int32 AmmoToAdd
 )
@@ -148,7 +160,7 @@ void AShooterBaseWeapon::MakeShot(
 	}
 }
 
-AController *AShooterBaseWeapon::GetPlayerController(
+AController *AShooterBaseWeapon::GetOwnerController(
 ) const
 {
 	ACharacter const *Player = Cast<ACharacter>(GetOwner());
@@ -170,7 +182,7 @@ bool AShooterBaseWeapon::GetCameraViewPoint(
 	}
 
 	if (ShooterCharacter->IsPlayerControlled()) {
-		APlayerController *Controller = Cast<APlayerController>(GetPlayerController());
+		APlayerController *Controller = Cast<APlayerController>(GetOwnerController());
 		if (!Controller) {
 			return false;
 		}

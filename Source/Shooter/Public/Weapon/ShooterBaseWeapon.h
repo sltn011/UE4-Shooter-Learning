@@ -41,6 +41,13 @@ public:
 	void Reload(
 	);
 
+	virtual void Zoom(
+		bool bEnable
+	);
+
+	virtual void OnUnequip(
+	);
+
 	void AddAmmo(
 		int32 AmmoToAdd
 	);
@@ -64,7 +71,7 @@ protected:
 	virtual void MakeShot(
 	);
 
-	AController *GetPlayerController(
+	AController *GetOwnerController(
 	) const;
 
 	bool GetCameraViewPoint(

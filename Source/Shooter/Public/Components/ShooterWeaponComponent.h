@@ -34,6 +34,10 @@ public:
 	void ReloadWeapon(
 	);
 
+	void ZoomWithCurrentWeapon(
+		bool bEnable
+	);
+
 	bool GetCurrentWeaponUIData(
 		FWeaponUIData &UIData
 	) const;
