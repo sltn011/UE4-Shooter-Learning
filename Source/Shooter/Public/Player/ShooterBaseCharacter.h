@@ -54,6 +54,12 @@ public:
 		FLinearColor const &Color
 	);
 
+	virtual void TurnOff(
+	) override;
+
+	virtual void Reset(
+	) override;
+
 protected:
 
 	virtual void BeginPlay(

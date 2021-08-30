@@ -5,8 +5,9 @@
 
 #include "AIController.h"
 #include "Components/ShooterHealthComponent.h"
-#include "ShooterUtils.h"
 #include "Perception/AISense_Sight.h"
+#include "Perception/AISense_Damage.h"
+#include "ShooterUtils.h"
 
 
 AActor *UShooterAIPerceptionComponent::GetClosestVisibleEnemyActor(
@@ -14,8 +15,13 @@ AActor *UShooterAIPerceptionComponent::GetClosestVisibleEnemyActor(
 {
     TArray<AActor *> PerceivedActors;
     GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), PerceivedActors);
-    if (PerceivedActors.Num() == 0) {
-        return nullptr;
+    if (PerceivedActors.Num() == 0) { // If no one in sight 
+
+        GetCurrentlyPerceivedActors(UAISense_Damage::StaticClass(), PerceivedActors); // Check if anyone damaged us
+        if (PerceivedActors.Num() == 0) {
+            return nullptr;
+        }
+
     }
 
     AAIController const *Controller = Cast<AAIController>(GetOwner());

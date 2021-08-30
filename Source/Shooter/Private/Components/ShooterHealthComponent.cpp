@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/Pawn.h"
+#include "Perception/AISense_Damage.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "ShooterGameModeBase.h"
 #include "ShooterUtils.h"
@@ -216,6 +217,8 @@ void UShooterHealthComponent::ApplyDamage(
 
 	SetHealth(Health - Damage);
 
+	ReportDamage(InstigatedBy, Damage);
+
 	PlayCameraShake(OnDamageCameraShake);
 
 	World->GetTimerManager().ClearTimer(AutoHealTimerHandle);
@@ -253,4 +256,23 @@ float UShooterHealthComponent::GetPointDamageModifier(
 	}
 
 	return DamageModifier;
+}
+
+void UShooterHealthComponent::ReportDamage(
+	AController *InstigatedBy,
+	float Damage
+) const
+{
+	if (!GetOwner() || !InstigatedBy || !InstigatedBy->GetPawn()) {
+		return;
+	}
+
+	UAISense_Damage::ReportDamageEvent(
+		GetWorld(),
+		GetOwner(),
+		InstigatedBy->GetPawn(),
+		Damage,
+		InstigatedBy->GetPawn()->GetActorLocation(),
+		GetOwner()->GetActorLocation()
+	);
 }

@@ -382,7 +382,6 @@ void AShooterGameModeBase::GameOver(
             AController *CharacterController = Character->GetController<AController>();
 
             Character->TurnOff();
-            Character->StopShooting();
 
             AAIController *AIController = Cast<AAIController>(CharacterController);
             if (AIController) {

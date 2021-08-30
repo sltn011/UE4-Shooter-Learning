@@ -115,6 +115,28 @@ void AShooterBaseCharacter::SetPlayerColor(
 	MaterialInstance->SetVectorParameterValue(MaterialColorName, Color);
 }
 
+void AShooterBaseCharacter::TurnOff(
+)
+{
+	if (WeaponComponent) {
+		WeaponComponent->StopShooting();
+		WeaponComponent->ZoomWithCurrentWeapon(false);
+	}
+
+	Super::TurnOff();
+}
+
+void AShooterBaseCharacter::Reset(
+)
+{
+	if (WeaponComponent) {
+		WeaponComponent->StopShooting();
+		WeaponComponent->ZoomWithCurrentWeapon(false);
+	}
+
+	Super::Reset();
+}
+
 void AShooterBaseCharacter::BeginPlay(
 )
 {

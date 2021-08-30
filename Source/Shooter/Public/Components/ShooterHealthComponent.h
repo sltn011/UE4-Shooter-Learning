@@ -125,6 +125,11 @@ private:
 		FName const &DamagedBoneName
 	) const;
 
+	void ReportDamage(
+		AController *InstigatedBy,
+		float Damage
+	) const;
+
 	float Health = 0.0f;
 
 	FTimerHandle AutoHealTimerHandle;
